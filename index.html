@@ -1,0 +1,638 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAS Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div>
+        <h1>CAS Portfolio</h1>
+        <p class="muted">Creativity · Activity · Service</p>
+    </div>
+    <button class="secondary" onclick="showPage('dashboard')">Dashboard</button>
+</header>
+
+<main>
+    <section id="dashboard">
+        <h2>Welcome back.</h2>
+        <p class="muted">Your CAS portfolio, in one place.</p>
+
+        <div class="dashboard">
+            <article class="card">
+                <h3>Experiences</h3>
+                <p class="muted">Manage your CAS experiences.</p>
+                <button onclick="showPage('experiences')">Open Experiences</button>
+            </article>
+
+            <article class="card">
+                <h3>Projects</h3>
+                <p class="muted">Manage your CAS projects.</p>
+                <button onclick="showPage('projects')">Open Projects</button>
+            </article>
+
+            <article class="card">
+                <h3>Progress</h3>
+                <p class="muted">Track your CAS progress.</p>
+                <button onclick="showPage('progress')">Open Progress</button>
+            </article>
+        </div>
+    </section>
+
+    <section id="experiences" hidden>
+        <button class="text-button" onclick="showPage('dashboard')">← Back to Dashboard</button>
+
+        <div class="section-heading">
+            <div>
+                <h2>Experiences</h2>
+                <p class="muted">Your CAS experiences.</p>
+            </div>
+            <button onclick="showForm()">+ Add Experience</button>
+        </div>
+
+        <div id="experienceList"></div>
+
+        <form id="experienceForm" class="card" hidden>
+            <h3 id="experienceFormTitle">New Experience</h3>
+            <p class="muted">Enter your experience information below.</p>
+
+            <label for="name">Experience Name *</label>
+            <input id="name" required>
+
+            <label for="date">Date</label>
+            <input id="date" type="date">
+
+            <label for="description">Description</label>
+            <textarea id="description"></textarea>
+
+            <label for="goals">Goals</label>
+            <textarea id="goals"></textarea>
+
+            <label for="impact">Impact</label>
+            <textarea id="impact"></textarea>
+
+            <label for="budget">Budget</label>
+            <input id="budget" placeholder="e.g. $20">
+
+            <label for="activityType">Activity Type</label>
+            <select id="activityType">
+                <option value="">Select one</option>
+                <option>Individual Activity</option>
+                <option>Collaborative Activity</option>
+            </select>
+
+            <label for="eventType">Event Type</label>
+            <select id="eventType">
+                <option value="">Select one</option>
+                <option>Series of Events</option>
+                <option>Single Event</option>
+            </select>
+
+            <label for="teamMembers">Team Members' Names</label>
+            <input id="teamMembers" type="text"
+                   placeholder="Enter names, separated by commas">
+
+            <label for="startDate">Start Date</label>
+            <input id="startDate" type="date">
+
+            <label for="finishDate">Tentative Finish Date</label>
+            <input id="finishDate" type="date">
+
+            <label for="hoursPerWeek">Approx. Hours per Week</label>
+            <input id="hoursPerWeek" type="number" min="0" step="0.5" placeholder="e.g. 3">
+
+            <label for="location">Location</label>
+            <select id="location">
+                <option value="">Select one</option>
+                <option>At Home</option>
+                <option>Outdoors / Sports Facility</option>
+                <option>In-school</option>
+                <option>Community Organization</option>
+                <option>Other</option>
+            </select>
+
+            <label for="organization">Community Organization</label>
+            <input id="organization" placeholder="Organization name, if applicable">
+
+            <label for="organizationContact">Organization Contact</label>
+            <input id="organizationContact" placeholder="Contact information, if applicable">
+
+            <label for="materials">Materials / Equipment / Facilities</label>
+            <textarea id="materials" placeholder="List materials or equipment used"></textarea>
+
+            <fieldset>
+                <legend>CAS Strands</legend>
+                <label class="choice">
+                    <input type="checkbox" name="strands" value="Creativity">
+                    Creativity
+                </label>
+                <label class="choice">
+                    <input type="checkbox" name="strands" value="Activity">
+                    Activity
+                </label>
+                <label class="choice">
+                    <input type="checkbox" name="strands" value="Service">
+                    Service
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>IB CAS Learning Outcomes</legend>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO1">
+                    LO1 — Identify own strengths and develop areas for growth
+                </label>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO2">
+                    LO2 — Demonstrate challenges and develop new skills
+                </label>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO3">
+                    LO3 — Demonstrate how to initiate and plan a CAS experience
+                </label>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO4">
+                    LO4 — Show commitment and perseverance
+                </label>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO5">
+                    LO5 — Demonstrate collaborative skills
+                </label>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO6">
+                    LO6 — Demonstrate engagement with issues of global significance
+                </label>
+
+                <label class="choice">
+                    <input type="checkbox" name="learningOutcomes" value="LO7">
+                    LO7 — Recognize and consider the ethics of choices and actions
+                </label>
+            </fieldset>
+
+            <div class="form-actions">
+                <button type="submit">Save Experience</button>
+                <button type="button" class="secondary" onclick="hideForm()">Cancel</button>
+            </div>
+        </form>
+    </section>
+
+    <section id="projects" hidden>
+        <button class="text-button" onclick="showPage('dashboard')">← Back to Dashboard</button>
+        <div class="section-heading">
+            <div>
+                <h2>CAS Projects</h2>
+                <p class="muted">Manage your CAS projects.</p>
+            </div>
+            <button onclick="openProjectForm()">+ Add Project</button>
+        </div>
+
+        <div id="projectList"></div>
+
+        <form id="projectForm" class="card" hidden>
+            <h3 id="projectFormTitle">New Project</h3>
+
+            <label for="projectName">Project Name *</label>
+            <input id="projectName" required>
+
+            <label for="projectDate">Date</label>
+            <input id="projectDate" type="date">
+
+            <label for="projectTeam">Team Members</label>
+            <input id="projectTeam">
+
+            <label for="projectSupervisor">Supervisor Name / Email</label>
+            <input id="projectSupervisor">
+
+            <label for="projectDescription">Description</label>
+            <textarea id="projectDescription"></textarea>
+
+            <label for="projectGoals">Goals / Objectives</label>
+            <textarea id="projectGoals"></textarea>
+
+            <label for="projectImpact">Impact</label>
+            <textarea id="projectImpact"></textarea>
+
+            <label for="projectRisks">Risk Assessment</label>
+            <textarea id="projectRisks"></textarea>
+
+            <label for="projectBudget">Budget / Fundraising</label>
+            <input id="projectBudget">
+
+            <label for="projectStart">Start Date</label>
+            <input id="projectStart" type="date">
+
+            <label for="projectFinish">Finish Date</label>
+            <input id="projectFinish" type="date">
+
+            <label for="projectHours">Hours per Week</label>
+            <input id="projectHours" type="number" min="0" step="0.5">
+
+            <label for="projectOrganization">Community Organization / Contact</label>
+            <input id="projectOrganization">
+
+            <label for="projectInvestigation">Investigation / Need</label>
+            <textarea id="projectInvestigation"></textarea>
+
+            <label for="projectPreparation">Preparation / Materials / Tasks</label>
+            <textarea id="projectPreparation"></textarea>
+
+            <label for="projectAction">Action / Activities</label>
+            <textarea id="projectAction"></textarea>
+
+            <label for="projectReflection">Reflections</label>
+            <textarea id="projectReflection"></textarea>
+
+            <label for="projectEvidence">Evidence Links</label>
+            <textarea id="projectEvidence"></textarea>
+
+            <label for="projectApproval">Coordinator Approval / Status</label>
+            <input id="projectApproval">
+
+            <fieldset>
+                <legend>CAS Strands</legend>
+                <label class="choice"><input type="checkbox" name="projectStrands" value="Creativity"> Creativity</label>
+                <label class="choice"><input type="checkbox" name="projectStrands" value="Activity"> Activity</label>
+                <label class="choice"><input type="checkbox" name="projectStrands" value="Service"> Service</label>
+            </fieldset>
+
+            <fieldset>
+                <legend>Learning Outcomes</legend>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO1"> LO1</label>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO2"> LO2</label>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO3"> LO3</label>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO4"> LO4</label>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO5"> LO5</label>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO6"> LO6</label>
+                <label class="choice"><input type="checkbox" name="projectOutcomes" value="LO7"> LO7</label>
+            </fieldset>
+
+            <div class="form-actions">
+                <button type="submit">Save Project</button>
+                <button type="button" class="secondary" onclick="closeProjectForm()">Cancel</button>
+            </div>
+        </form>
+    </section>
+
+    <section id="progress" hidden>
+        <button class="text-button" onclick="showPage('dashboard')">← Back to Dashboard</button>
+        <h2>CAS Progress</h2>
+        <p class="muted">Summary based on your saved experiences and projects.</p>
+        <div id="progressSummary" class="dashboard"></div>
+        <div id="progressOutcomes" class="card"></div>
+    </section>
+</main>
+
+<script>
+const dashboard = document.getElementById("dashboard");
+const experiencesPage = document.getElementById("experiences");
+const experienceForm = document.getElementById("experienceForm");
+const experienceList = document.getElementById("experienceList");
+const projectForm = document.getElementById("projectForm");
+const projectList = document.getElementById("projectList");
+
+function loadItems(key) {
+    try {
+        const items = JSON.parse(localStorage.getItem(key) || "[]");
+        return Array.isArray(items) ? items : [];
+    } catch (error) {
+        console.error("Could not load " + key, error);
+        return [];
+    }
+}
+
+let experiences = loadItems("casExperiences");
+let projects = loadItems("casProjects");
+let editingIndex = null;
+let editingProjectIndex = null;
+
+function saveExperiences() {
+    localStorage.setItem("casExperiences", JSON.stringify(experiences));
+}
+
+function saveProjects() {
+    localStorage.setItem("casProjects", JSON.stringify(projects));
+}
+
+function showPage(page) {
+    for (const id of ["dashboard", "experiences", "projects", "progress"]) {
+        document.getElementById(id).hidden = id !== page;
+    }
+
+    if (page === "experiences") renderExperiences();
+    if (page === "projects") renderProjects();
+    if (page === "progress") renderProgress();
+}
+
+function showForm() {
+    editingIndex = null;
+    experienceForm.reset();
+    document.getElementById("experienceFormTitle").textContent = "New Experience";
+    experienceForm.hidden = false;
+    document.getElementById("name").focus();
+}
+
+function hideForm() {
+    editingIndex = null;
+    experienceForm.reset();
+    experienceForm.hidden = true;
+}
+
+const experienceFields = [
+    "name", "date", "description", "goals", "impact", "budget",
+    "activityType", "eventType", "teamMembers", "startDate",
+    "finishDate", "hoursPerWeek", "location", "organization",
+    "organizationContact", "materials"
+];
+
+function checkedValues(form, group) {
+    return Array.from(
+        form.querySelectorAll('input[name="' + group + '"]:checked'),
+        input => input.value
+    );
+}
+
+function restoreChecks(form, group, values) {
+    form.querySelectorAll('input[name="' + group + '"]').forEach(input => {
+        input.checked = (values || []).includes(input.value);
+    });
+}
+
+function editExperience(index) {
+    const experience = experiences[index];
+    if (!experience) return;
+
+    editingIndex = index;
+    experienceForm.reset();
+
+    for (const field of experienceFields) {
+        document.getElementById(field).value = experience[field] ?? "";
+    }
+
+    restoreChecks(experienceForm, "strands", experience.strands);
+    restoreChecks(experienceForm, "learningOutcomes", experience.learningOutcomes);
+
+    document.getElementById("experienceFormTitle").textContent = "Edit Experience";
+    experienceForm.hidden = false;
+    experienceForm.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function addText(parent, label, value) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = label + ": " +
+        (value === undefined || value === null || value === "" ? "Not entered" : value);
+    parent.appendChild(paragraph);
+}
+
+function makeButton(label, handler) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary";
+    button.textContent = label;
+    button.addEventListener("click", handler);
+    return button;
+}
+
+function renderExperiences() {
+    experienceList.replaceChildren();
+
+    if (!experiences.length) {
+        addText(experienceList, "Experiences", "No experiences yet. Select + Add Experience to begin.");
+        return;
+    }
+
+    experiences.forEach((experience, index) => {
+        const card = document.createElement("article");
+        card.className = "card experience-card";
+
+        const heading = document.createElement("h3");
+        heading.textContent = experience.name || "Untitled Experience";
+        card.appendChild(heading);
+
+        const labels = {
+            date: "Date",
+            description: "Description",
+            goals: "Goals",
+            impact: "Impact",
+            budget: "Budget",
+            activityType: "Activity Type",
+            eventType: "Event Type",
+            teamMembers: "Team Members",
+            startDate: "Start Date",
+            finishDate: "Tentative Finish Date",
+            hoursPerWeek: "Hours per Week",
+            location: "Location",
+            organization: "Community Organization",
+            organizationContact: "Organization Contact",
+            materials: "Materials / Equipment / Facilities"
+        };
+
+        for (const [field, label] of Object.entries(labels)) {
+            addText(card, label, experience[field]);
+        }
+
+        addText(card, "CAS Strands", (experience.strands || []).join(", "));
+        addText(card, "Learning Outcomes", (experience.learningOutcomes || []).join(", "));
+
+        card.appendChild(makeButton("Edit", () => editExperience(index)));
+
+        card.appendChild(makeButton("Delete", () => {
+            if (!confirm("Delete this experience?")) return;
+
+            experiences.splice(index, 1);
+            hideForm();
+            saveExperiences();
+            renderExperiences();
+        }));
+
+        experienceList.appendChild(card);
+    });
+}
+
+experienceForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const experience = {};
+
+    for (const field of experienceFields) {
+        experience[field] = document.getElementById(field).value.trim();
+    }
+
+    experience.strands = checkedValues(experienceForm, "strands");
+    experience.learningOutcomes = checkedValues(experienceForm, "learningOutcomes");
+
+    if (editingIndex === null) {
+        experiences.push(experience);
+    } else {
+        experiences[editingIndex] = experience;
+    }
+
+    saveExperiences();
+    hideForm();
+    renderExperiences();
+});
+
+const projectFields = [
+    "projectName", "projectDate", "projectTeam", "projectSupervisor",
+    "projectDescription", "projectGoals", "projectImpact",
+    "projectRisks", "projectBudget", "projectStart", "projectFinish",
+    "projectHours", "projectOrganization", "projectInvestigation",
+    "projectPreparation", "projectAction", "projectReflection",
+    "projectEvidence", "projectApproval"
+];
+
+function openProjectForm(index = null) {
+    editingProjectIndex = index;
+    projectForm.reset();
+
+    const project = index === null ? null : projects[index];
+
+    if (project) {
+        for (const field of projectFields) {
+            document.getElementById(field).value = project[field] ?? "";
+        }
+
+        restoreChecks(projectForm, "projectStrands", project.strands);
+        restoreChecks(projectForm, "projectOutcomes", project.learningOutcomes);
+    }
+
+    document.getElementById("projectFormTitle").textContent =
+        project ? "Edit Project" : "New Project";
+
+    projectForm.hidden = false;
+    projectForm.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function closeProjectForm() {
+    editingProjectIndex = null;
+    projectForm.reset();
+    projectForm.hidden = true;
+}
+
+function renderProjects() {
+    projectList.replaceChildren();
+
+    if (!projects.length) {
+        addText(projectList, "Projects", "No projects yet. Select + Add Project to begin.");
+        return;
+    }
+
+    projects.forEach((project, index) => {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.textContent = project.projectName || "Untitled Project";
+        card.appendChild(title);
+
+        for (const field of projectFields.slice(1)) {
+            addText(card, field.replace(/^project/, ""), project[field]);
+        }
+
+        addText(card, "CAS Strands", (project.strands || []).join(", "));
+        addText(card, "Learning Outcomes", (project.learningOutcomes || []).join(", "));
+
+        card.appendChild(makeButton("Edit", () => openProjectForm(index)));
+
+        card.appendChild(makeButton("Delete", () => {
+            if (!confirm("Delete this project?")) return;
+
+            projects.splice(index, 1);
+            closeProjectForm();
+            saveProjects();
+            renderProjects();
+        }));
+
+        projectList.appendChild(card);
+    });
+}
+
+projectForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const project = {};
+
+    for (const field of projectFields) {
+        project[field] = document.getElementById(field).value.trim();
+    }
+
+    project.strands = checkedValues(projectForm, "projectStrands");
+    project.learningOutcomes = checkedValues(projectForm, "projectOutcomes");
+
+    if (editingProjectIndex === null) {
+        projects.push(project);
+    } else {
+        projects[editingProjectIndex] = project;
+    }
+
+    saveProjects();
+    closeProjectForm();
+    renderProjects();
+});
+
+function renderProgress() {
+    const summary = document.getElementById("progressSummary");
+    const outcomes = document.getElementById("progressOutcomes");
+
+    summary.replaceChildren();
+    outcomes.replaceChildren();
+
+    const all = [...experiences, ...projects];
+    const strands = new Set(all.flatMap(item => item.strands || []));
+    const learning = new Set(all.flatMap(item => item.learningOutcomes || []));
+
+    const statistics = [
+        ["Experiences", experiences.length],
+        ["Projects", projects.length],
+        ["CAS Strands Covered", strands.size + " / 3"],
+        ["Learning Outcomes Covered", learning.size + " / 7"]
+    ];
+
+    for (const [label, value] of statistics) {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.textContent = label;
+        card.appendChild(title);
+
+        const number = document.createElement("p");
+        number.textContent = value;
+        card.appendChild(number);
+
+        summary.appendChild(card);
+    }
+
+    const title = document.createElement("h3");
+    title.textContent = "Learning Outcome Coverage";
+    outcomes.appendChild(title);
+
+    for (let i = 1; i <= 7; i++) {
+        addText(
+            outcomes,
+            "LO" + i,
+            learning.has("LO" + i) ? "Recorded" : "Not yet recorded"
+        );
+    }
+
+    addText(
+        outcomes,
+        "Note",
+        "Coverage reflects selected outcomes, not official CAS completion or coordinator approval."
+    );
+}
+
+renderExperiences();
+</script>
+
+</body>
+</html>
