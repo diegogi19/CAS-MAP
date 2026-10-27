@@ -6,15 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAS Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <style>
+      .auth-shell{max-width:480px;margin:5vh auto;padding:28px} .auth-shell input{width:100%;box-sizing:border-box;margin:7px 0 14px} .auth-shell button{margin:5px 5px 5px 0} .account-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap} .sync-status{font-size:.88rem;opacity:.85} .auth-error{color:#ff9b9b} .auth-success{color:#8df1d5} .auth-shell[hidden], #appShell[hidden]{display:none!important} .auth-shell label{display:block} 
+    </style>
 </head>
 <body>
+<section id="authShell" class="auth-shell card">
+  <h2>Welcome to CAS Portfolio</h2>
+  <p class="muted">Sign in to keep your CAS work private and available across devices.</p>
+  <form id="authForm">
+    <label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" required>
+    <label for="authPassword">Password</label><input id="authPassword" type="password" minlength="6" autocomplete="current-password" required>
+    <div><button id="loginButton" type="submit">Log In</button><button id="signupButton" class="secondary" type="button">Create Account</button></div>
+  </form>
+  <button id="resetButton" class="text-button" type="button">Forgot password?</button>
+  <p id="authMessage" role="status"></p>
+</section>
+<div id="appShell" hidden>
 
 <header class="topbar">
     <div>
         <h1>CAS Portfolio</h1>
         <p class="muted">Creativity · Activity · Service</p>
     </div>
-    <button class="secondary" onclick="showPage('dashboard')">Dashboard</button>
+    <div class="account-bar"><span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
 </header>
 
 <main>
@@ -291,7 +307,7 @@
         <div id="progressOutcomes" class="card"></div>
     </section>
 </main>
-
+</div>
 <script>
 const dashboard = document.getElementById("dashboard");
 const experiencesPage = document.getElementById("experiences");
@@ -300,29 +316,161 @@ const experienceList = document.getElementById("experienceList");
 const projectForm = document.getElementById("projectForm");
 const projectList = document.getElementById("projectList");
 
-function loadItems(key) {
-    try {
-        const items = JSON.parse(localStorage.getItem(key) || "[]");
-        return Array.isArray(items) ? items : [];
-    } catch (error) {
-        console.error("Could not load " + key, error);
-        return [];
-    }
-}
-
-let experiences = loadItems("casExperiences");
-let projects = loadItems("casProjects");
+// Public Supabase connection details. Replace only the publishable key.
+const SUPABASE_URL = "https://ltessdscljvbjgkgpjnr.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE";
+const cloud = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const authShell = document.getElementById("authShell");
+const appShell = document.getElementById("appShell");
+const authMessage = document.getElementById("authMessage");
+const syncStatus = document.getElementById("syncStatus");
+let currentUser = null;
+let experiences = [];
+let projects = [];
 let editingIndex = null;
 let editingProjectIndex = null;
+let cloudRows = {experience: [], project: []};
+let busy = false;
 
-function saveExperiences() {
-    localStorage.setItem("casExperiences", JSON.stringify(experiences));
+function setStatus(message, error = false) {
+  syncStatus.textContent = message;
+  syncStatus.className = "sync-status " + (error ? "auth-error" : "");
 }
-
-function saveProjects() {
-    localStorage.setItem("casProjects", JSON.stringify(projects));
+function setAuthMessage(message, error = false) {
+  authMessage.textContent = message;
+  authMessage.className = error ? "auth-error" : "auth-success";
 }
-
+function readLocal(key) {
+  try { const value = JSON.parse(localStorage.getItem(key) || "[]"); return Array.isArray(value) ? value : []; }
+  catch { return []; }
+}
+function showSignedOut() {
+  currentUser = null;
+  experiences = []; projects = []; cloudRows = {experience: [], project: []};
+  hideForm(); closeProjectForm();
+  authShell.hidden = false; appShell.hidden = true;
+}
+async function loadCloud() {
+  if (!currentUser) return;
+  setStatus("Loading from cloud…");
+  const {data, error} = await cloud.from("cas_records")
+    .select("id,record_type,content,created_at")
+    .eq("user_id", currentUser.id)
+    .order("created_at", {ascending:true});
+  if (error) { setStatus("Load failed: " + error.message, true); return false; }
+  cloudRows.experience = data.filter(row => row.record_type === "experience");
+  cloudRows.project = data.filter(row => row.record_type === "project");
+  experiences = cloudRows.experience.map(row => row.content);
+  projects = cloudRows.project.map(row => row.content);
+  renderExperiences(); renderProjects(); renderProgress();
+  setStatus("Saved in cloud ✓");
+  return true;
+}
+async function insertRecord(type, content) {
+  const {error} = await cloud.from("cas_records").insert({user_id: currentUser.id, record_type:type, content});
+  if (error) throw error;
+}
+async function updateRecord(type, index, content) {
+  const row = cloudRows[type][index];
+  if (!row) throw new Error("Record not loaded. Refresh and try again.");
+  const {error} = await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()})
+    .eq("id",row.id).eq("user_id",currentUser.id);
+  if (error) throw error;
+}
+async function deleteRecord(type, index) {
+  const row = cloudRows[type][index];
+  if (!row) throw new Error("Record not loaded. Refresh and try again.");
+  const {error} = await cloud.from("cas_records").delete().eq("id",row.id).eq("user_id",currentUser.id);
+  if (error) throw error;
+}
+async function withCloud(action) {
+  if (busy || !currentUser) return false;
+  busy = true; setStatus("Saving…");
+  try { await action(); await loadCloud(); return true; }
+  catch (error) { setStatus("Not saved: " + error.message, true); alert("Cloud save failed. Your previous data has not been changed. " + error.message); return false; }
+  finally { busy = false; }
+}
+async function importLocalData() {
+  // Explicit opt-in: never silently merge local data from a shared computer into an account.
+  const oldExperiences = readLocal("casExperiences");
+  const oldProjects = readLocal("casProjects");
+  if (!oldExperiences.length && !oldProjects.length) return;
+  const marker = "casImported_" + currentUser.id;
+  if (localStorage.getItem(marker)) return;
+  const count = oldExperiences.length + oldProjects.length;
+  if (!confirm(`Found ${count} CAS record(s) saved in this browser. Import them into ${currentUser.email}? Choose Cancel if these belong to another student. The originals will remain in this browser.`)) return;
+  setStatus("Importing browser records…");
+  try {
+    for (const content of oldExperiences) await insertRecord("experience", content);
+    for (const content of oldProjects) await insertRecord("project", content);
+    localStorage.setItem(marker, "1");
+    await loadCloud();
+    alert("Import complete. Original browser data was preserved.");
+  } catch (error) {
+    setStatus("Import incomplete: " + error.message, true);
+    alert("Import interrupted. Some records may have imported. Check your cloud records before retrying to avoid duplicates. Original browser data was preserved.");
+  }
+}
+async function enterAccount(user) {
+  currentUser = user;
+  document.getElementById("accountEmail").textContent = user.email || "Signed in";
+  authShell.hidden = true; appShell.hidden = false;
+  showPage("dashboard");
+  if (await loadCloud()) await importLocalData();
+}
+document.getElementById("authForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!cloud) return setAuthMessage("Supabase library did not load. Check your connection.", true);
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  setAuthMessage("Signing in…");
+  const {data,error} = await cloud.auth.signInWithPassword({email,password});
+  if (error) return setAuthMessage(error.message,true);
+  if (data.user) await enterAccount(data.user);
+});
+document.getElementById("signupButton").addEventListener("click", async () => {
+  if (!cloud) return setAuthMessage("Supabase library did not load.",true);
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  if (!email || password.length < 6) return setAuthMessage("Enter an email and password (at least 6 characters).",true);
+  setAuthMessage("Creating account…");
+  const {data,error} = await cloud.auth.signUp({email,password});
+  if (error) return setAuthMessage(error.message,true);
+  if (data.session && data.user) await enterAccount(data.user);
+  else setAuthMessage("Account created. Check your email to confirm, then log in.");
+});
+document.getElementById("resetButton").addEventListener("click", async () => {
+  if (!cloud) return setAuthMessage("Supabase library did not load.",true);
+  const email = document.getElementById("authEmail").value.trim();
+  if (!email) return setAuthMessage("Enter your email first.",true);
+  const {error} = await cloud.auth.resetPasswordForEmail(email, {redirectTo:location.origin + location.pathname});
+  setAuthMessage(error ? error.message : "If the address is registered, a reset email will arrive.",!!error);
+});
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  const {error} = await cloud.auth.signOut();
+  if (error) return setStatus(error.message,true);
+  showSignedOut();
+});
+// Handle password-reset links sent by Supabase.
+if (cloud) cloud.auth.onAuthStateChange((event) => {
+  if (event === "PASSWORD_RECOVERY") {
+    const newPassword = prompt("Enter your new password (at least 6 characters):");
+    if (!newPassword) return;
+    if (newPassword.length < 6) return alert("Password must be at least 6 characters.");
+    cloud.auth.updateUser({password:newPassword}).then(({error}) => {
+      alert(error ? "Password reset failed: " + error.message : "Password updated. You can now sign in.");
+    });
+  }
+});
+async function initializeAuth() {
+  if (SUPABASE_PUBLISHABLE_KEY.includes("PASTE_YOUR_") || !cloud) {
+    setAuthMessage("Setup needed: paste your Supabase publishable key into index.html, then publish.",true);
+    return;
+  }
+  const {data,error} = await cloud.auth.getUser();
+  if (error && !data?.user) { setAuthMessage("Please log in."); return; }
+  if (data?.user) await enterAccount(data.user);
+}
 function showPage(page) {
     for (const id of ["dashboard", "experiences", "projects", "progress"]) {
         document.getElementById(id).hidden = id !== page;
@@ -445,20 +593,16 @@ function renderExperiences() {
 
         card.appendChild(makeButton("Edit", () => editExperience(index)));
 
-        card.appendChild(makeButton("Delete", () => {
-            if (!confirm("Delete this experience?")) return;
-
-            experiences.splice(index, 1);
-            hideForm();
-            saveExperiences();
-            renderExperiences();
+        card.appendChild(makeButton("Delete", async () => {
+            if (!confirm("Delete this experience permanently?")) return;
+            if (await withCloud(() => deleteRecord("experience", index))) hideForm();
         }));
 
         experienceList.appendChild(card);
     });
 }
 
-experienceForm.addEventListener("submit", function(event) {
+experienceForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
     const experience = {};
@@ -470,15 +614,10 @@ experienceForm.addEventListener("submit", function(event) {
     experience.strands = checkedValues(experienceForm, "strands");
     experience.learningOutcomes = checkedValues(experienceForm, "learningOutcomes");
 
-    if (editingIndex === null) {
-        experiences.push(experience);
-    } else {
-        experiences[editingIndex] = experience;
-    }
-
-    saveExperiences();
-    hideForm();
-    renderExperiences();
+    const saved = await withCloud(() => editingIndex === null
+        ? insertRecord("experience", experience)
+        : updateRecord("experience", editingIndex, experience));
+    if (saved) hideForm();
 });
 
 const projectFields = [
@@ -543,20 +682,16 @@ function renderProjects() {
 
         card.appendChild(makeButton("Edit", () => openProjectForm(index)));
 
-        card.appendChild(makeButton("Delete", () => {
-            if (!confirm("Delete this project?")) return;
-
-            projects.splice(index, 1);
-            closeProjectForm();
-            saveProjects();
-            renderProjects();
+        card.appendChild(makeButton("Delete", async () => {
+            if (!confirm("Delete this project permanently?")) return;
+            if (await withCloud(() => deleteRecord("project", index))) closeProjectForm();
         }));
 
         projectList.appendChild(card);
     });
 }
 
-projectForm.addEventListener("submit", function(event) {
+projectForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
     const project = {};
@@ -568,15 +703,10 @@ projectForm.addEventListener("submit", function(event) {
     project.strands = checkedValues(projectForm, "projectStrands");
     project.learningOutcomes = checkedValues(projectForm, "projectOutcomes");
 
-    if (editingProjectIndex === null) {
-        projects.push(project);
-    } else {
-        projects[editingProjectIndex] = project;
-    }
-
-    saveProjects();
-    closeProjectForm();
-    renderProjects();
+    const saved = await withCloud(() => editingProjectIndex === null
+        ? insertRecord("project", project)
+        : updateRecord("project", editingProjectIndex, project));
+    if (saved) closeProjectForm();
 });
 
 function renderProgress() {
@@ -631,7 +761,7 @@ function renderProgress() {
     );
 }
 
-renderExperiences();
+initializeAuth();
 </script>
 
 </body>
