@@ -140,6 +140,22 @@
             <label for="materials">Materials / Equipment / Facilities</label>
             <textarea id="materials" placeholder="List materials or equipment used"></textarea>
 
+
+            <h3>CASMAP — Complete planning</h3>
+            <label for="supervisor">Supervisor name and email</label><input id="supervisor">
+            <label for="referenceImage">Reference / inspiration image URL</label><input id="referenceImage" type="url">
+            <label for="riskAssessment">Risk assessment (physical, emotional, security)</label><textarea id="riskAssessment"></textarea>
+            <label for="fundraising">Fundraising plan / how budget will be obtained</label><textarea id="fundraising"></textarea>
+            <label for="schoolApproval">In-school / coordinator approval status</label><input id="schoolApproval">
+            <label for="investigation">Investigation — need, interests, research, supervisor</label><textarea id="investigation"></textarea>
+            <label for="preparation">Preparation — tasks, materials, roles, timeline</label><textarea id="preparation"></textarea>
+            <label for="action">Action — step-by-step activities / process log</label><textarea id="action"></textarea>
+            <label for="demonstration">Demonstration — what and how you shared results</label><textarea id="demonstration"></textarea>
+            <label for="reflectionBefore">Reflection #1 — before starting (date, challenges, targeted LOs)</label><textarea id="reflectionBefore"></textarea>
+            <label for="reflectionAfter">Reflection #2 — after completion (date, learning, targeted LOs)</label><textarea id="reflectionAfter"></textarea>
+            <label for="evidenceLinks">External evidence links (one per line)</label><textarea id="evidenceLinks"></textarea>
+            <label for="experienceMedia">Attach evidence / reflection media (images, screenshots, videos, PDFs, audio)</label><input id="experienceMedia" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
+            <p class="muted">New files upload when you save. You can edit the experience later to add more.</p>
             <fieldset>
                 <legend>CAS Strands</legend>
                 <label class="choice">
@@ -274,6 +290,17 @@
             <label for="projectApproval">Coordinator Approval / Status</label>
             <input id="projectApproval">
 
+
+            <h3>CASMAP — Additional requirements</h3>
+            <label for="projectReferenceImage">Reference / inspiration image URL</label><input id="projectReferenceImage" type="url">
+            <label for="projectFundraising">How will funds be obtained?</label><textarea id="projectFundraising"></textarea>
+            <label for="projectLocation">Location / in-school or community</label><input id="projectLocation">
+            <label for="projectEventType">Series of events or single event</label><select id="projectEventType"><option value="">Select</option><option>Series of Events</option><option>Single Event</option></select>
+            <label for="projectDemonstration">Demonstration / presentation of results</label><textarea id="projectDemonstration"></textarea>
+            <label for="projectReflectionBefore">Reflection #1 — before starting, with date and LOs</label><textarea id="projectReflectionBefore"></textarea>
+            <label for="projectReflectionAfter">Reflection #2 — after completion, with date and LOs</label><textarea id="projectReflectionAfter"></textarea>
+            <label for="projectMedia">Attach evidence / reflection media (images, screenshots, videos, PDFs, audio)</label><input id="projectMedia" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
+            <p class="muted">New files upload when you save. You can add more later.</p>
             <fieldset>
                 <legend>CAS Strands</legend>
                 <label class="choice"><input type="checkbox" name="projectStrands" value="Creativity"> Creativity</label>
@@ -367,8 +394,9 @@ async function loadCloud() {
   return true;
 }
 async function insertRecord(type, content) {
-  const {error} = await cloud.from("cas_records").insert({user_id: currentUser.id, record_type:type, content});
+  const {data,error} = await cloud.from("cas_records").insert({user_id: currentUser.id, record_type:type, content}).select("id").single();
   if (error) throw error;
+  return data.id;
 }
 async function updateRecord(type, index, content) {
   const row = cloudRows[type][index];
@@ -499,7 +527,7 @@ const experienceFields = [
     "name", "date", "description", "goals", "impact", "budget",
     "activityType", "eventType", "teamMembers", "startDate",
     "finishDate", "hoursPerWeek", "location", "organization",
-    "organizationContact", "materials"
+    "organizationContact", "materials", "supervisor", "referenceImage", "riskAssessment", "fundraising", "schoolApproval", "investigation", "preparation", "action", "demonstration", "reflectionBefore", "reflectionAfter", "evidenceLinks"
 ];
 
 function checkedValues(form, group) {
@@ -584,8 +612,8 @@ function renderExperiences() {
             materials: "Materials / Equipment / Facilities"
         };
 
-        for (const [field, label] of Object.entries(labels)) {
-            addText(card, label, experience[field]);
+        for (const field of experienceFields) {
+            addText(card, labels[field] || field.replace(/([A-Z])/g," $1"), experience[field]);
         }
 
         addText(card, "CAS Strands", (experience.strands || []).join(", "));
@@ -599,7 +627,41 @@ function renderExperiences() {
         }));
 
         experienceList.appendChild(card);
+        addMediaList(card,experience);
     });
+}
+
+// Evidence files are stored in a PRIVATE Supabase Storage bucket, not in HTML or public URLs.
+const MEDIA_BUCKET = "cas-evidence";
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+function safeFileName(name) { return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-110); }
+async function saveWithMedia(type, index, content, fileInputId) {
+  const input = document.getElementById(fileInputId);
+  const files = Array.from(input.files || []);
+  for (const file of files) if (file.size > MAX_FILE_BYTES) throw new Error(file.name + " exceeds 25 MB. Compress it or use an external evidence link.");
+  const old = index === null ? null : (type === "experience" ? experiences[index] : projects[index]);
+  content.media = [...(old?.media || [])];
+  const id = index === null ? await insertRecord(type, content) : await updateRecord(type,index,content);
+  for (const file of files) {
+    const path = `${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name)}`;
+    const {error} = await cloud.storage.from(MEDIA_BUCKET).upload(path,file,{upsert:false,contentType:file.type || "application/octet-stream"});
+    if (error) throw new Error("Upload of " + file.name + " failed: " + error.message);
+    content.media.push({name:file.name,path,type:file.type,size:file.size,uploadedAt:new Date().toISOString()});
+    const {error:saveError} = await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentUser.id);
+    if (saveError) throw saveError;
+  }
+}
+async function addMediaList(card,record) {
+  if (!record.media?.length) return;
+  const heading=document.createElement("h4"); heading.textContent="Evidence & reflection attachments";card.appendChild(heading);
+  for (const file of record.media) {
+    const line=document.createElement("p");
+    const link=document.createElement("a"); link.textContent=file.name; link.target="_blank"; link.rel="noopener noreferrer";
+    const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(file.path,3600);
+    if (!error && data?.signedUrl) link.href=data.signedUrl;
+    else {link.textContent=file.name+" (unavailable: check Storage policies)";}
+    line.appendChild(link);card.appendChild(line);
+  }
 }
 
 experienceForm.addEventListener("submit", async function(event) {
@@ -614,9 +676,7 @@ experienceForm.addEventListener("submit", async function(event) {
     experience.strands = checkedValues(experienceForm, "strands");
     experience.learningOutcomes = checkedValues(experienceForm, "learningOutcomes");
 
-    const saved = await withCloud(() => editingIndex === null
-        ? insertRecord("experience", experience)
-        : updateRecord("experience", editingIndex, experience));
+    const saved = await withCloud(() => saveWithMedia("experience",editingIndex,experience,"experienceMedia"));
     if (saved) hideForm();
 });
 
@@ -626,7 +686,7 @@ const projectFields = [
     "projectRisks", "projectBudget", "projectStart", "projectFinish",
     "projectHours", "projectOrganization", "projectInvestigation",
     "projectPreparation", "projectAction", "projectReflection",
-    "projectEvidence", "projectApproval"
+    "projectEvidence", "projectApproval", "projectReferenceImage", "projectFundraising", "projectLocation", "projectEventType", "projectDemonstration", "projectReflectionBefore", "projectReflectionAfter"
 ];
 
 function openProjectForm(index = null) {
@@ -688,6 +748,7 @@ function renderProjects() {
         }));
 
         projectList.appendChild(card);
+        addMediaList(card,project);
     });
 }
 
@@ -703,9 +764,7 @@ projectForm.addEventListener("submit", async function(event) {
     project.strands = checkedValues(projectForm, "projectStrands");
     project.learningOutcomes = checkedValues(projectForm, "projectOutcomes");
 
-    const saved = await withCloud(() => editingProjectIndex === null
-        ? insertRecord("project", project)
-        : updateRecord("project", editingProjectIndex, project));
+    const saved = await withCloud(() => saveWithMedia("project",editingProjectIndex,project,"projectMedia"));
     if (saved) closeProjectForm();
 });
 
