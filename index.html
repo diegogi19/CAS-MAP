@@ -57,6 +57,26 @@ body{background:#f7f9fc} .topbar{box-shadow:none} .topbar h1:before{display:none
 .portfolio-details[open]{animation:casReveal .18s ease-out}
 @keyframes casReveal{from{opacity:.6;transform:translateY(-3px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.portfolio-card,.portfolio-details[open]{transition:none;animation:none}}
+
+/* Writing tools and personal preferences */
+.writing-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:5px 0 9px}
+.writing-tools button{padding:7px 10px;border-radius:8px;font-size:.78rem;background:#edf2fb;color:#25456f}
+.writing-tools select{width:auto;min-height:32px;padding:5px 8px;font-size:.8rem}
+.personalize-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:15px 0}
+.personalize-bar select{width:auto;min-height:37px;padding:6px 10px}
+.media-tile{position:relative}
+.media-item{min-width:0}
+.media-item .media-tile{display:flex}
+.media-remove{display:block;width:100%;margin-top:5px;padding:7px!important;font-size:.75rem!important;background:#fff0f0!important;color:#9d2e37!important}
+.media-remove:disabled{opacity:.6}
+body[data-font="serif"] textarea,body[data-font="serif"] .detail-line span{font-family:Georgia,serif}
+body[data-font="mono"] textarea,body[data-font="mono"] .detail-line span{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+body[data-font="rounded"] textarea,body[data-font="rounded"] .detail-line span{font-family:Trebuchet MS,Arial,sans-serif}
+body[data-accent="teal"]{--personal-accent:#087f83}
+body[data-accent="violet"]{--personal-accent:#7354bd}
+body[data-accent="blue"]{--personal-accent:#235ad4}
+body[data-accent] button:not(.secondary):not(.text-button):not(.media-remove):not(.cas-tab){background:var(--personal-accent)}
+body[data-accent] .portfolio-cover:not(.project){background:linear-gradient(120deg,var(--personal-accent),#93b9df)}
 </style>
 </head>
 <body>
@@ -83,6 +103,12 @@ body{background:#f7f9fc} .topbar{box-shadow:none} .topbar h1:before{display:none
 
 <main>
     <section id="dashboard">
+      <div class="personalize-bar" aria-label="Personalize your portfolio">
+        <label for="portfolioFont">Writing font</label>
+        <select id="portfolioFont"><option value="default">Modern sans</option><option value="serif">Classic serif</option><option value="rounded">Rounded</option><option value="mono">Monospace</option></select>
+        <label for="portfolioAccent">Accent color</label>
+        <select id="portfolioAccent"><option value="blue">Blue</option><option value="teal">Teal</option><option value="violet">Violet</option></select>
+      </div>
         <h2>Welcome back.</h2>
         <p class="muted">Your CAS portfolio, in one place.</p>
 
@@ -719,7 +745,7 @@ function renderPortfolioCard(type,record,index){
     const empty=document.createElement("p");empty.className="muted";empty.textContent="No information recorded yet. Choose Edit to add it.";panel.append(empty);
    }
    for(const key of present){const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const value=document.createElement("span");value.textContent=record[key];line.append(heading,value);panel.append(line)}
-   if(selected==="Evidence")addMediaList(panel,record);
+   if(selected==="Evidence")addMediaList(panel,record,type,index);
   }
   for(const b of tabBar.children){const active=b.textContent===selected;b.classList.toggle("active",active);b.setAttribute("aria-selected",String(active))}
  };
@@ -802,12 +828,66 @@ async function saveWithMedia(type,index,content,fileInputId){
  if(failures.length)alert("Your experience text was saved, but some attachments failed:\n"+failures.join("\n"));
  else pendingInspiration[type]=null;
 }
-async function addMediaList(container,record){
+// Lightweight writing toolbar: plain-text Markdown syntax remains portable in Supabase.
+function setupWritingTools(){
+ const fields=document.querySelectorAll("#experienceForm textarea,#projectForm textarea");
+ for(const area of fields){
+  const tools=document.createElement("div");tools.className="writing-tools";
+  tools.setAttribute("role","toolbar");tools.setAttribute("aria-label","Formatting tools for "+(area.id||"text"));
+  const commands=[
+   ["• Bullets","bullet"],["1. Numbered","number"],["B Bold","bold"],["I Italic","italic"],["H Heading","heading"]
+  ];
+  for(const [label,kind] of commands){
+   const btn=document.createElement("button");btn.type="button";btn.textContent=label;
+   btn.addEventListener("click",()=>{
+    const a=area.selectionStart,b=area.selectionEnd,selected=area.value.slice(a,b);
+    let value=selected;
+    if(kind==="bullet")value=(selected||"List item").split("\\n").map(line=>"- "+line.replace(/^[-*] /,"")).join("\\n");
+    if(kind==="number")value=(selected||"List item").split("\\n").map((line,i)=>(i+1)+". "+line).join("\\n");
+    if(kind==="bold")value="**"+(selected||"bold text")+"**";
+    if(kind==="italic")value="*"+(selected||"italic text")+"*";
+    if(kind==="heading")value="## "+(selected||"Heading");
+    area.setRangeText(value,a,b,"select");area.dispatchEvent(new Event("input",{bubbles:true}));area.focus();
+   });tools.append(btn);
+  }
+  area.before(tools);
+ }
+ const font=document.getElementById("portfolioFont"),accent=document.getElementById("portfolioAccent");
+ const allowedFonts=["default","serif","rounded","mono"],allowedAccents=["blue","teal","violet"];
+ const savedFont=localStorage.getItem("cas-ui-font"),savedAccent=localStorage.getItem("cas-ui-accent");
+ font.value=allowedFonts.includes(savedFont)?savedFont:"default";
+ accent.value=allowedAccents.includes(savedAccent)?savedAccent:"blue";
+ const apply=()=>{document.body.dataset.font=font.value;document.body.dataset.accent=accent.value;localStorage.setItem("cas-ui-font",font.value);localStorage.setItem("cas-ui-accent",accent.value)};
+ font.addEventListener("change",apply);accent.addEventListener("change",apply);apply();
+}
+setupWritingTools();
+
+async function removeMediaFromRecord(type,index,file){
+ if(busy||!currentUser)return;
+ if(!confirm("Delete this attachment permanently? This cannot be undone."))return;
+ const row=cloudRows[type]?.[index];
+ if(!row){alert("Record not found. Refresh and retry.");return}
+ busy=true;setStatus("Deleting attachment…");
+ try{
+  const original=row.content||{};
+  const files=Array.isArray(original.media)?original.media:[];
+  if(!files.some(item=>item.path===file.path))throw new Error("Attachment no longer exists in this record.");
+  // Remove metadata first, so a storage failure cannot leave a broken attachment reference.
+  const next={...original,media:files.filter(item=>item.path!==file.path)};
+  const {error:updateError}=await cloud.from("cas_records").update({content:next,updated_at:new Date().toISOString()}).eq("id",row.id).eq("user_id",currentUser.id);
+  if(updateError)throw updateError;
+  const {error:storageError}=await cloud.storage.from(MEDIA_BUCKET).remove([file.path]);
+  await loadCloud();
+  if(storageError)alert("Attachment removed from the experience, but cloud file cleanup failed: "+storageError.message);
+ }catch(error){setStatus("Deletion failed: "+error.message,true);alert("Could not delete attachment: "+error.message)}
+ finally{busy=false}
+}
+async function addMediaList(container,record,type,index){
  if(!record.media?.length)return;
  const heading=document.createElement("h4");heading.textContent="Inspiration, photos, videos & evidence";container.append(heading);
  const grid=document.createElement("div");grid.className="media-grid";container.append(grid);
  for(const file of record.media){
-  const tile=document.createElement("a");tile.className="media-tile";tile.target="_blank";tile.rel="noopener noreferrer";
+  const item=document.createElement("div");item.className="media-item";const tile=document.createElement("a");tile.className="media-tile";tile.target="_blank";tile.rel="noopener noreferrer";
   const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(file.path,3600);
   const url=!error&&data?.signedUrl?data.signedUrl:null;
   if(url)tile.href=url;
@@ -815,7 +895,10 @@ async function addMediaList(container,record){
   if(url&&file.type?.startsWith("image/")){preview=document.createElement("img");preview.src=url;preview.loading="lazy";preview.alt=file.name}
   else if(url&&file.type?.startsWith("video/")){preview=document.createElement("video");preview.src=url;preview.preload="metadata";preview.muted=true}
   else{preview=document.createElement("div");preview.className="media-placeholder";preview.textContent=file.type?.startsWith("video/")?"▶":"📄"}
-  const name=document.createElement("span");name.textContent=(file.role==="inspiration"?"Inspiration · ":"")+file.name+(url?"":" (unavailable)");tile.append(preview,name);grid.append(tile);
+  const name=document.createElement("span");name.textContent=(file.role==="inspiration"?"Inspiration · ":"")+file.name+(url?"":" (unavailable)");tile.append(preview,name);
+  const remove=document.createElement("button");remove.type="button";remove.className="media-remove";remove.textContent="Delete attachment";
+  remove.addEventListener("click",()=>removeMediaFromRecord(type,index,file));
+  item.append(tile,remove);grid.append(item);
  }
 }
 
