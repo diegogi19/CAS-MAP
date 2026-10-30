@@ -218,6 +218,46 @@ body .empty-state{background:var(--surface);border-color:var(--line)}
 body .ivi-mark{background:var(--accent);color:var(--page)}
 @media(max-width:760px){.theme-panel{right:auto;left:0}.theme-trigger span{display:none}}
 .ib-context-label{display:inline-block;margin-left:12px;padding:6px 10px;border:1px solid var(--line,#e6ebf3);border-radius:999px;font-size:.63rem;font-weight:650;letter-spacing:.02em;vertical-align:middle;color:var(--muted-ink,#69778d);background:var(--hover-surface,#f0f4fb)}@media(max-width:650px){.ib-context-label{display:block;width:max-content;margin:7px 0 0;font-size:.6rem}}
+
+.teacher-dialog{border:1px solid var(--line,#dce3ee);background:var(--surface,#fff);color:var(--ink,#172238);border-radius:19px;box-shadow:0 28px 100px #0005;width:min(540px,calc(100vw - 32px));padding:0;max-height:90vh}
+.teacher-dialog::backdrop{background:#111d35a6;backdrop-filter:blur(5px)}
+.teacher-dialog-inner{padding:27px}
+.teacher-dialog-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.teacher-dialog-top h3{margin:0;font-size:1.5rem}
+.teacher-dialog-top button{padding:6px 11px}
+.teacher-share-status{min-height:25px;color:var(--muted-ink,#64748b);font-size:.84rem;margin:15px 0 8px}
+.teacher-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin:13px 0}
+.teacher-share-actions button{font-size:.83rem;padding:10px 12px}
+#teacherShareUrl{width:100%;font-size:.78rem}
+
+/* Immersive full-record CAS presentation */
+.cas-presentation{width:min(1120px,calc(100vw - 32px));height:min(92vh,1000px);max-width:none;max-height:none;padding:0;border:1px solid var(--line,#e5eaf2);border-radius:20px;background:var(--surface,#fff);color:var(--ink,#172238);box-shadow:0 40px 120px #0006;overflow:hidden}
+.cas-presentation::backdrop{background:#07162dbd;backdrop-filter:blur(8px)}
+.presentation-shell{height:100%;display:flex;flex-direction:column}
+.presentation-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(22px,4vw,48px);border-bottom:1px solid var(--line,#e7ecf3)}
+.presentation-kicker,.presentation-eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.13em;color:var(--accent,#245ad2)}
+.presentation-top h2{font-size:clamp(1.25rem,2.6vw,1.8rem);margin:6px 0 0}
+.presentation-top button{padding:9px 12px}
+.presentation-content{overflow:auto;flex:1;padding:30px clamp(22px,5vw,64px);scroll-behavior:smooth}
+.presentation-hero{border-radius:18px;padding:clamp(25px,4vw,42px);background:var(--hover-surface,#f0f4fc);margin-bottom:25px}
+.presentation-hero h3{font-size:clamp(2rem,4vw,3.3rem);letter-spacing:-.055em;margin:10px 0 20px}
+.presentation-tags{display:flex;flex-wrap:wrap;gap:8px}
+.presentation-tag{border-radius:999px;padding:6px 12px;background:var(--surface,#fff);font-size:.78rem;font-weight:700;color:var(--accent,#245ad2)}
+.presentation-section{padding:28px 0;border-bottom:1px solid var(--line,#e8edf4)}
+.presentation-section h3{font-size:1.4rem;letter-spacing:-.04em;margin:0 0 20px}
+.presentation-field{margin:16px 0;max-width:850px}
+.presentation-field-name{font-size:.73rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--muted-ink,#718099);margin-bottom:8px}
+.presentation-field .rich-render{line-height:1.85;color:var(--ink,#172238);font-size:1rem}
+.presentation-media{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.presentation-media-item{padding:14px;border:1px solid var(--line,#e6ebf3);border-radius:14px;min-width:0}
+.presentation-media-label{font-size:.66rem;letter-spacing:.12em;color:var(--accent,#245ad2);font-weight:800}
+.presentation-media-name{font-size:.85rem;font-weight:700;margin:7px 0 12px;overflow-wrap:anywhere}
+.presentation-media-item img,.presentation-media-item video{width:100%;max-height:420px;object-fit:contain;border-radius:9px;background:var(--hover-surface,#f0f4fb)}
+.presentation-media-link{display:block;margin-top:10px;color:var(--accent,#245ad2);font-size:.85rem}
+.presentation-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px clamp(22px,4vw,48px);border-top:1px solid var(--line,#e7ecf3);font-size:.83rem;color:var(--muted-ink,#718099)}
+.presentation-footer>div{display:flex;gap:9px}
+.presentation-footer button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:680px){.cas-presentation{width:100vw;height:100dvh;border-radius:0}.presentation-media{grid-template-columns:1fr}.presentation-footer{flex-wrap:wrap}.presentation-content{padding:20px}}
 </style>
 </head>
 <body>
@@ -256,7 +296,8 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
             <button type="button" data-theme-option="sand"><span class="theme-swatch swatch-sand"></span>Sand</button>
           </div>
         </div>
-      </div><span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
+      </div><button type="button" id="teacherShareButton" class="secondary" title="Manage read-only teacher access">Teacher View</button>
+      <span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
 </header>
 
 <main>
@@ -873,6 +914,7 @@ function renderPortfolioCard(type,record,index){
 
  const edit=makeButton("✎ Edit & add evidence",()=>project?openProjectForm(index):editExperience(index));actions.append(edit);
  const del=makeButton("Delete",async()=>{if(!confirm("Permanently delete this record? Existing uploaded files may remain in storage."))return;if(await withCloud(()=>deleteRecord(type,index)))project?closeProjectForm():hideForm()});del.classList.add("danger");actions.append(del);body.append(actions);
+ const present=makeButton("◧ Present",()=>openPresentation(type,index));present.classList.add("secondary");actions.append(present);
  const details=document.createElement("details");details.className="portfolio-details";const label=document.createElement("summary");label.textContent="View all CASMAP information";details.append(label);
  const keys=project?projectFields.slice(1):experienceFields.filter(k=>k!=="name");
  for(const key of keys){const value=record[key];if(!value)continue;const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const content=document.createElement("span");line.append(heading,richNode(value));details.append(line)}
@@ -971,22 +1013,36 @@ async function saveWithMedia(type,index,content,fileInputId){
  for(const file of files)if(file.size>MAX_FILE_BYTES)throw new Error(file.name+" exceeds 25 MB.");
  const old=index===null?null:(type==="experience"?experiences[index]:projects[index]);
  content.media=[...(old?.media||[])];
- if(type==="experience") content.sortOrder=old?.sortOrder ?? (Date.now()+Math.random());
+ if(type==="experience")content.sortOrder=old?.sortOrder??(Date.now()+Math.random());
  const id=index===null?await insertRecord(type,content):(await updateRecord(type,index,content),cloudRows[type][index].id);
  const failures=[];
  for(const file of files){
+  const uploadKey=[file.name,file.size,file.lastModified,file===inspiration?"inspiration":"evidence"].join(":");
+  // Avoid uploading a file twice when retrying a partially successful save.
+  if(content.media.some(m=>m.uploadKey===uploadKey))continue;
+  let path=null;
   try{
-   const path=`${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name)}`;
+   path=`${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name||"screenshot.png")}`;
    const {error}=await cloud.storage.from(MEDIA_BUCKET).upload(path,file,{upsert:false,contentType:file.type||"application/octet-stream"});
-   if(error)throw error;
+   if(error)throw new Error("Storage upload: "+error.message);
    const isInspiration=file===inspiration;
-   content.media.push({name:file.name,path,type:file.type,size:file.size,uploadedAt:new Date().toISOString(),role:isInspiration?"inspiration":"evidence"});
-   const {error:saveError}=await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentUser.id);
-   if(saveError)throw saveError;
-  }catch(err){failures.push(file.name+": "+err.message)}
+   const attachment={name:file.name||"Screenshot",path,type:file.type,size:file.size,uploadedAt:new Date().toISOString(),role:isInspiration?"inspiration":"evidence",uploadKey};
+   content.media.push(attachment);
+   const {data,error:saveError}=await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentUser.id).select("id");
+   if(saveError||!data?.length){content.media.pop();throw new Error("Could not save attachment to record: "+(saveError?.message||"No record updated"))}
+  }catch(err){failures.push((file.name||"Screenshot")+": "+err.message)}
  }
- if(failures.length)alert("Your experience text was saved, but some attachments failed:\n"+failures.join("\n"));
- else pendingInspiration[type]=null;
+ if(failures.length){
+  // Keep the form open and pending screenshot available for retry.
+  throw new Error("Your text was saved, but these screenshots/files were NOT saved:\\n"+failures.join("\\n")+"\\nCheck Supabase Storage policies and bucket cas-evidence.");
+ }
+ pendingInspiration[type]=null;
+ input.value="";
+ const prefix=type==="experience"?"experience":"project";
+ const preview=document.getElementById(prefix+"InspirationPreview");
+ const clear=document.getElementById(prefix+"ClearInspiration");
+ if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);
+ preview.removeAttribute("src");preview.hidden=true;clear.hidden=true;
 }
 // Full WYSIWYG editor: formatting is visible while typing, and is saved with each record.
 // HTML is marked to distinguish it from legacy plain-text entries.
@@ -1290,7 +1346,170 @@ projectForm.addEventListener("input",()=>saveDraft("project"));
 projectForm.addEventListener("change",()=>saveDraft("project"));
 
 initializeAuth();
+
+
+// Fullscreen presentation: independent of the compact dashboard cards.
+const casPresentation=document.getElementById("casPresentation");
+const presentationContent=document.getElementById("presentationContent");
+let presentationType="experience",presentationIndex=0;
+const presentationGroups=[
+ ["Overview",["description","projectDescription","goals","projectGoals","impact","projectImpact","date","projectDate","startDate","projectStart","finishDate","projectFinish","hoursPerWeek","projectHours","location","projectLocation","teamMembers","projectTeam"]],
+ ["Investigation & planning",["investigation","projectInvestigation","preparation","projectPreparation","supervisor","projectSupervisor","riskAssessment","projectRisks","budget","projectBudget","materials","organization","projectOrganization","schoolApproval","projectApproval"]],
+ ["Action & demonstration",["action","projectAction","demonstration","projectDemonstration","activityType","eventType","projectEventType","fundraising","projectFundraising"]],
+ ["Reflections",["reflectionBefore","reflectionAfter","projectReflectionBefore","projectReflectionAfter","projectReflection"]],
+ ["Evidence & inspiration",["evidenceLinks","projectEvidence","referenceImage","projectReferenceImage"]]
+];
+function presentationAdd(tag,parent,cls,txt){
+ const el=document.createElement(tag);if(cls)el.className=cls;
+ if(txt!==undefined)el.textContent=txt;parent.append(el);return el;
+}
+async function renderPresentation(){
+ const list=presentationType==="project"?projects:experiences;
+ if(!list.length){casPresentation.close();return}
+ presentationIndex=Math.max(0,Math.min(presentationIndex,list.length-1));
+ const record=list[presentationIndex];
+ document.getElementById("presentationTitle").textContent=record.name||record.projectName||"CAS record";
+ document.getElementById("presentationCounter").textContent=`${presentationIndex+1} of ${list.length} ${presentationType==="project"?"projects":"experiences"}`;
+ document.getElementById("presentationPrev").disabled=presentationIndex===0;
+ document.getElementById("presentationNext").disabled=presentationIndex===list.length-1;
+ presentationContent.replaceChildren();
+ const hero=presentationAdd("div",presentationContent,"presentation-hero");
+ presentationAdd("div",hero,"presentation-eyebrow",presentationType==="project"?"CAS PROJECT":"CAS EXPERIENCE");
+ presentationAdd("h3",hero,"",record.name||record.projectName||"Untitled");
+ const tags=presentationAdd("div",hero,"presentation-tags");
+ for(const label of [...(record.strands||[]),...(record.learningOutcomes||[])])presentationAdd("span",tags,"presentation-tag",label);
+ const used=new Set(["name","projectName","strands","learningOutcomes","media","sortOrder"]);
+ for(const [group,keys] of presentationGroups){
+  const present=keys.filter(key=>record[key]!==undefined&&record[key]!==null&&String(record[key]).trim());
+  if(!present.length&&group!=="Evidence & inspiration")continue;
+  const section=presentationAdd("section",presentationContent,"presentation-section");
+  presentationAdd("h3",section,"",group);
+  for(const key of present){
+   used.add(key);
+   const field=presentationAdd("div",section,"presentation-field");
+   presentationAdd("div",field,"presentation-field-name",detailLabel(key));
+   field.append(richNode(record[key]));
+  }
+  if(group==="Evidence & inspiration"){
+   const media=Array.isArray(record.media)?record.media:[];
+   if(media.length){
+    const grid=presentationAdd("div",section,"presentation-media");
+    for(const file of media){
+     const tile=presentationAdd("div",grid,"presentation-media-item");
+     const label=presentationAdd("div",tile,"presentation-media-label",file.role==="inspiration"?"INSPIRATION":"EVIDENCE");
+     const name=presentationAdd("div",tile,"presentation-media-name",file.name||"Attachment");
+     const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(file.path,3600);
+     if(!casPresentation.open)return;
+     if(error||!data?.signedUrl){presentationAdd("p",tile,"muted","File unavailable: "+(error?.message||"Missing URL"));continue}
+     const url=data.signedUrl;
+     if(file.type?.startsWith("image/")){const img=presentationAdd("img",tile);img.src=url;img.alt=file.name||"CAS evidence";img.loading="lazy"}
+     else if(file.type?.startsWith("video/")){const video=presentationAdd("video",tile);video.src=url;video.controls=true;video.preload="metadata"}
+     const link=presentationAdd("a",tile,"presentation-media-link","Open full file ↗");
+     link.href=url;link.target="_blank";link.rel="noopener noreferrer";
+    }
+   }
+  }
+ }
+ const extras=Object.entries(record).filter(([key,val])=>!used.has(key)&&val!==null&&val!==""&&val!==undefined);
+ if(extras.length){
+  const section=presentationAdd("section",presentationContent,"presentation-section");
+  presentationAdd("h3",section,"","Additional CAS information");
+  for(const [key,val] of extras){
+   const field=presentationAdd("div",section,"presentation-field");
+   presentationAdd("div",field,"presentation-field-name",detailLabel(key));
+   field.append(richNode(Array.isArray(val)?val.join(", "):String(val)));
+  }
+ }
+ presentationContent.scrollTop=0;
+}
+function openPresentation(type,index){
+ presentationType=type;presentationIndex=index;
+ if(!casPresentation.open)casPresentation.showModal();
+ renderPresentation().catch(e=>{presentationContent.textContent="Could not load presentation: "+e.message});
+}
+document.getElementById("presentationClose").addEventListener("click",()=>casPresentation.close());
+document.getElementById("presentationPrev").addEventListener("click",()=>{presentationIndex--;renderPresentation()});
+document.getElementById("presentationNext").addEventListener("click",()=>{presentationIndex++;renderPresentation()});
+casPresentation.addEventListener("keydown",event=>{
+ if(event.target.matches("button,input,textarea"))return;
+ if(event.key==="ArrowRight"){event.preventDefault();document.getElementById("presentationNext").click()}
+ if(event.key==="ArrowLeft"){event.preventDefault();document.getElementById("presentationPrev").click()}
+});
+// Teacher access: a single revocable, unguessable read-only link per account.
+// Only a SHA-256 hash of the token is stored in Supabase.
+const teacherDialog=document.getElementById("teacherShareDialog");
+const teacherUrlInput=document.getElementById("teacherShareUrl");
+const teacherStatus=document.getElementById("teacherShareStatus");
+function teacherMsg(message){teacherStatus.textContent=message}
+function teacherRandomToken(){
+ const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);
+ return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function teacherHash(token){
+ const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));
+ return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+}
+function teacherLink(token){return new URL("teacher.html#access="+encodeURIComponent(token),location.href).href}
+function teacherStorageKey(){return "cas-teacher-link-"+currentUser.id}
+document.getElementById("teacherShareButton").addEventListener("click",async()=>{
+ if(!currentUser)return;
+ teacherDialog.showModal();
+ teacherUrlInput.value=localStorage.getItem(teacherStorageKey())||"";
+ teacherMsg("Checking sharing status…");
+ const {data,error}=await cloud.from("cas_teacher_shares").select("enabled").eq("user_id",currentUser.id).maybeSingle();
+ if(error)teacherMsg("Run the Teacher View SQL setup first: "+error.message);
+ else if(!data?.enabled){teacherUrlInput.value="";localStorage.removeItem(teacherStorageKey());teacherMsg("No active teacher link. Generate one to enable read-only access.")}
+ else if(!teacherUrlInput.value)teacherMsg("Sharing is active, but this browser no longer has the link. Generate a new link to replace it.");
+ else teacherMsg("Your teacher link is active. Updates to saved records appear when the teacher refreshes.");
+});
+document.getElementById("teacherShareClose").addEventListener("click",()=>teacherDialog.close());
+document.getElementById("teacherShareCreate").addEventListener("click",async()=>{
+ if(!currentUser||!confirm("Generate a new teacher link? Any previous teacher link will stop working."))return;
+ const btn=document.getElementById("teacherShareCreate");btn.disabled=true;
+ try{
+  const token=teacherRandomToken(),token_hash=await teacherHash(token);
+  const {error}=await cloud.from("cas_teacher_shares").upsert({user_id:currentUser.id,token_hash,enabled:true,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error)throw error;
+  const url=teacherLink(token);
+  teacherUrlInput.value=url;localStorage.setItem(teacherStorageKey(),url);
+  teacherMsg("New link active. Copy and send it privately to your teacher.");
+ }catch(e){teacherMsg("Could not generate link: "+e.message)}
+ finally{btn.disabled=false}
+});
+document.getElementById("teacherShareCopy").addEventListener("click",async()=>{
+ if(!teacherUrlInput.value)return teacherMsg("Generate a link first.");
+ try{await navigator.clipboard.writeText(teacherUrlInput.value);teacherMsg("Link copied.")}catch{teacherUrlInput.select();teacherMsg("Copy the selected link manually.")}
+});
+document.getElementById("teacherShareRevoke").addEventListener("click",async()=>{
+ if(!currentUser||!confirm("Revoke teacher access now? The current link will stop working."))return;
+ const {error}=await cloud.from("cas_teacher_shares").update({enabled:false,updated_at:new Date().toISOString()}).eq("user_id",currentUser.id);
+ if(error)return teacherMsg("Could not revoke: "+error.message);
+ localStorage.removeItem(teacherStorageKey());teacherUrlInput.value="";teacherMsg("Teacher access revoked.");
+});
+
 </script>
 
+<dialog id="teacherShareDialog" class="teacher-dialog">
+  <div class="teacher-dialog-inner">
+    <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
+    <p class="muted">Create a private, read-only link to your live CAS portfolio. Your teacher won't need an account.</p>
+    <div id="teacherShareStatus" role="status" class="teacher-share-status"></div>
+    <label for="teacherShareUrl">Shareable link</label>
+    <input id="teacherShareUrl" type="text" readonly placeholder="Generate a link to share" />
+    <div class="teacher-share-actions">
+      <button type="button" id="teacherShareCreate">Generate new link</button>
+      <button type="button" id="teacherShareCopy" class="secondary">Copy link</button>
+      <button type="button" id="teacherShareRevoke" class="secondary">Revoke access</button>
+    </div>
+    <p class="muted" style="font-size:.78rem">Anyone with this link can see the shared records and evidence. Regenerating replaces the previous link. Keep it private.</p>
+  </div>
+</dialog>
+<dialog id="casPresentation" class="cas-presentation" aria-label="CAS experience presentation">
+ <div class="presentation-shell">
+  <header class="presentation-top"><div><span class="presentation-kicker">INTERNATIONAL BACCALAUREATE · CAS</span><h2 id="presentationTitle"></h2></div><button type="button" id="presentationClose" class="secondary" aria-label="Close presentation">✕</button></header>
+  <div id="presentationContent" class="presentation-content"></div>
+  <footer class="presentation-footer"><span id="presentationCounter"></span><div><button type="button" id="presentationPrev" class="secondary">← Previous</button><button type="button" id="presentationNext">Next →</button></div></footer>
+ </div>
+</dialog>
 </body>
 </html>
