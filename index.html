@@ -40,6 +40,23 @@ body{background:#f7f9fc} .topbar{box-shadow:none} .topbar h1:before{display:none
 .order-hint{font-size:.84rem;color:#718299;margin:7px 0 0}.save-note{font-size:.83rem;color:#49617e;margin-top:12px}
 .save-note.error{color:#b03939}.portfolio-cover{align-items:center}
 @media(max-width:760px){.portfolio-cover{height:78px}}
+
+/* Smooth, independent experience cards */
+#experienceList,#projectList{align-items:start}
+.portfolio-card{min-width:0;transition:box-shadow .18s ease,transform .18s ease}
+.portfolio-card:hover{box-shadow:0 12px 32px #243b5c18}
+.portfolio-card.dragging{opacity:.55;transform:scale(.985)}
+.portfolio-card.drag-over{outline:2px solid #3267d6;outline-offset:3px}
+.portfolio-actions{flex-wrap:wrap}
+.drag-handle{user-select:none;-webkit-user-select:none;touch-action:none}
+.paste-zone{border:1.5px dashed #a8bce0;border-radius:14px;padding:18px;background:#f8faff;outline:none;cursor:pointer;margin:10px 0}
+.paste-zone:focus,.paste-zone:focus-within{border-color:#3267d6;box-shadow:0 0 0 3px #3267d61c}
+.paste-zone strong{display:block;color:#294568;margin-bottom:5px}
+.paste-zone small{color:#6d8099}
+.paste-zone img{display:block;max-width:100%;max-height:180px;border-radius:10px;margin-top:12px;object-fit:contain}
+.portfolio-details[open]{animation:casReveal .18s ease-out}
+@keyframes casReveal{from{opacity:.6;transform:translateY(-3px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.portfolio-card,.portfolio-details[open]{transition:none;animation:none}}
 </style>
 </head>
 <body>
@@ -174,7 +191,13 @@ body{background:#f7f9fc} .topbar{box-shadow:none} .topbar h1:before{display:none
 
             <h3>CASMAP — Complete planning</h3>
             <label for="supervisor">Supervisor name and email</label><input id="supervisor">
-            <label for="referenceImage">Reference / inspiration image URL</label><input id="referenceImage" type="url">
+            <label for="referenceImage">Reference / inspiration image URL (optional)</label><input id="referenceImage" type="url">
+            <div id="experiencePasteZone" class="paste-zone" tabindex="0" role="group" aria-label="Paste inspiration screenshot">
+              <strong>Inspiration image — paste a screenshot here</strong>
+              <small>Click here, then press ⌘V (Mac) or Ctrl+V (Windows). You can also select an image below.</small>
+              <input id="experienceInspirationFile" type="file" accept="image/*" aria-label="Choose inspiration image">
+              <img id="experienceInspirationPreview" alt="Inspiration image preview" hidden>
+            </div>
             <label for="riskAssessment">Risk assessment (physical, emotional, security)</label><textarea id="riskAssessment"></textarea>
             <label for="fundraising">Fundraising plan / how budget will be obtained</label><textarea id="fundraising"></textarea>
             <label for="schoolApproval">In-school / coordinator approval status</label><input id="schoolApproval">
@@ -323,7 +346,13 @@ body{background:#f7f9fc} .topbar{box-shadow:none} .topbar h1:before{display:none
 
 
             <h3>CASMAP — Additional requirements</h3>
-            <label for="projectReferenceImage">Reference / inspiration image URL</label><input id="projectReferenceImage" type="url">
+            <label for="projectReferenceImage">Reference / inspiration image URL (optional)</label><input id="projectReferenceImage" type="url">
+            <div id="projectPasteZone" class="paste-zone" tabindex="0" role="group" aria-label="Paste project inspiration screenshot">
+              <strong>Inspiration image — paste a screenshot here</strong>
+              <small>Click here, then press ⌘V or Ctrl+V. Or choose an image below.</small>
+              <input id="projectInspirationFile" type="file" accept="image/*" aria-label="Choose project inspiration image">
+              <img id="projectInspirationPreview" alt="Project inspiration preview" hidden>
+            </div>
             <label for="projectFundraising">How will funds be obtained?</label><textarea id="projectFundraising"></textarea>
             <label for="projectLocation">Location / in-school or community</label><input id="projectLocation">
             <label for="projectEventType">Series of events or single event</label><select id="projectEventType"><option value="">Select</option><option>Series of Events</option><option>Single Event</option></select>
@@ -541,7 +570,7 @@ function showPage(page) {
     if (page === "progress") renderProgress();
 }
 
-function showForm() {
+function showForm() { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;
     editingIndex = null;
     experienceForm.reset();
     document.getElementById("experienceFormTitle").textContent = "New Experience";
@@ -576,7 +605,7 @@ function restoreChecks(form, group, values) {
     });
 }
 
-function editExperience(index) {
+function editExperience(index) { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;
     const experience = experiences[index];
     if (!experience) return;
 
@@ -614,7 +643,7 @@ function makeButton(label, handler) {
 
 function detailLabel(key){return key.replace(/^project/, "").replace(/([A-Z])/g," $1").replace(/^./,m=>m.toUpperCase());}
 function renderPortfolioCard(type,record,index){
- const project=type==="project"; const card=document.createElement("article");card.className="card portfolio-card";
+ const project=type==="project"; const card=document.createElement("article");card.className="card portfolio-card";card.dataset.index=index;
  const cover=document.createElement("div");cover.className="portfolio-cover"+(project?" project":"");
  const kind=document.createElement("span");kind.className="portfolio-type";kind.textContent=project?"CAS Project":"CAS Experience";cover.append(kind);
  const date=document.createElement("span");date.className="portfolio-date";date.textContent=(project?record.projectStart||record.projectDate:record.startDate||record.date)||"Date not set";cover.append(date);card.append(cover);
@@ -629,12 +658,37 @@ function renderPortfolioCard(type,record,index){
  meta.textContent=[hours?hours+" hrs/week":null,count+" attachment"+(count===1?"":"s")].filter(Boolean).join("  ·  ");body.append(meta);
  const actions=document.createElement("div");actions.className="portfolio-actions";
  if(!project){
-  const handle=makeButton("↕ Move",()=>{});handle.className="drag-handle";handle.title="Drag to rearrange";handle.setAttribute("aria-label","Drag to rearrange this experience");handle.draggable=true;
-  handle.addEventListener("dragstart",e=>{dragIndex=index;card.classList.add("dragging");e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",String(index))});
-  handle.addEventListener("dragend",()=>{dragIndex=null;card.classList.remove("dragging");document.querySelectorAll(".drag-over").forEach(x=>x.classList.remove("drag-over"))});
-  card.addEventListener("dragover",e=>{if(dragIndex===null)return;e.preventDefault();card.classList.add("drag-over")});
-  card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));
-  card.addEventListener("drop",async e=>{e.preventDefault();card.classList.remove("drag-over");if(dragIndex!==null&&dragIndex!==index)await reorderExperiences(dragIndex,index)});
+  const handle=makeButton("☰ Move",()=>{});handle.className="drag-handle";handle.title="Hold and drag to reorder";handle.setAttribute("aria-label","Hold and drag this experience to reorder");
+  // Pointer events support mouse, trackpad and touch. The handle is not a no-op draggable button.
+  handle.addEventListener("pointerdown",e=>{
+    if(e.button!==0||busy)return;
+    e.preventDefault();
+    const pointerId=e.pointerId, originY=e.clientY;
+    let target=index, started=false;
+    handle.setPointerCapture(pointerId);
+    const move=ev=>{
+      if(ev.pointerId!==pointerId)return;
+      if(Math.abs(ev.clientY-originY)>5)started=true;
+      if(!started)return;
+      card.classList.add("dragging");
+      document.querySelectorAll("#experienceList .portfolio-card").forEach(el=>el.classList.remove("drag-over"));
+      const hovered=document.elementFromPoint(ev.clientX,ev.clientY)?.closest("#experienceList .portfolio-card");
+      if(hovered){hovered.classList.add("drag-over");target=Number(hovered.dataset.index)}
+    };
+    const finish=async ev=>{
+      if(ev.pointerId!==pointerId)return;
+      handle.removeEventListener("pointermove",move);
+      handle.removeEventListener("pointerup",finish);
+      handle.removeEventListener("pointercancel",cancel);
+      card.classList.remove("dragging");
+      document.querySelectorAll("#experienceList .portfolio-card").forEach(el=>el.classList.remove("drag-over"));
+      if(started&&target!==index)await reorderExperiences(index,target);
+    };
+    const cancel=ev=>{if(ev.pointerId===pointerId){handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",finish);handle.removeEventListener("pointercancel",cancel);card.classList.remove("dragging")}};
+    handle.addEventListener("pointermove",move);
+    handle.addEventListener("pointerup",finish);
+    handle.addEventListener("pointercancel",cancel);
+  });
   actions.append(handle);
  }
 
@@ -670,7 +724,12 @@ function renderPortfolioCard(type,record,index){
   for(const b of tabBar.children){const active=b.textContent===selected;b.classList.toggle("active",active);b.setAttribute("aria-selected",String(active))}
  };
  for(const [name] of groups){const b=document.createElement("button");b.type="button";b.className="cas-tab";b.textContent=name;b.setAttribute("role","tab");b.addEventListener("click",()=>display(name));tabBar.append(b)}
- details.replaceChildren(label,tabBar,panel);details.addEventListener("toggle",()=>{if(details.open)display("Overview")});body.append(details);return card;
+ details.replaceChildren(label,tabBar,panel);details.addEventListener("toggle",()=>{
+   if(details.open){
+    for(const other of document.querySelectorAll("#"+(project?"projectList":"experienceList")+" .portfolio-details"))if(other!==details&&other.open)other.open=false;
+    display("Overview");
+   }
+  });body.append(details);return card;
 }
 let dragIndex=null;
 async function reorderExperiences(from,to){
@@ -696,9 +755,33 @@ function renderExperiences(){experienceList.replaceChildren();if(!experiences.le
 const MEDIA_BUCKET = "cas-evidence";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 function safeFileName(name) { return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-110); }
+const pendingInspiration={experience:null,project:null};
+function initializePasteZone(type){
+ const prefix=type==="experience"?"experience":"project";
+ const zone=document.getElementById(prefix+"PasteZone");
+ const input=document.getElementById(prefix+"InspirationFile");
+ const preview=document.getElementById(prefix+"InspirationPreview");
+ const setFile=file=>{
+  if(!file||!file.type.startsWith("image/"))return;
+  if(file.size>MAX_FILE_BYTES){alert("Image exceeds 25 MB.");return}
+  pendingInspiration[type]=file;
+  if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);
+  preview.dataset.objectUrl=URL.createObjectURL(file);
+  preview.src=preview.dataset.objectUrl;preview.hidden=false;
+ };
+ input.addEventListener("change",()=>setFile(input.files?.[0]));
+ zone.addEventListener("paste",event=>{
+  const file=Array.from(event.clipboardData?.files||[]).find(f=>f.type.startsWith("image/"));
+  if(file){event.preventDefault();setFile(file)}
+ });
+}
+initializePasteZone("experience");
+initializePasteZone("project");
 async function saveWithMedia(type,index,content,fileInputId){
  const input=document.getElementById(fileInputId);
  const files=Array.from(input.files||[]);
+ const inspiration=pendingInspiration[type];
+ if(inspiration)files.push(inspiration);
  for(const file of files)if(file.size>MAX_FILE_BYTES)throw new Error(file.name+" exceeds 25 MB.");
  const old=index===null?null:(type==="experience"?experiences[index]:projects[index]);
  content.media=[...(old?.media||[])];
@@ -710,16 +793,18 @@ async function saveWithMedia(type,index,content,fileInputId){
    const path=`${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name)}`;
    const {error}=await cloud.storage.from(MEDIA_BUCKET).upload(path,file,{upsert:false,contentType:file.type||"application/octet-stream"});
    if(error)throw error;
-   content.media.push({name:file.name,path,type:file.type,size:file.size,uploadedAt:new Date().toISOString()});
+   const isInspiration=file===inspiration;
+   content.media.push({name:file.name,path,type:file.type,size:file.size,uploadedAt:new Date().toISOString(),role:isInspiration?"inspiration":"evidence"});
    const {error:saveError}=await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentUser.id);
    if(saveError)throw saveError;
   }catch(err){failures.push(file.name+": "+err.message)}
  }
  if(failures.length)alert("Your experience text was saved, but some attachments failed:\n"+failures.join("\n"));
+ else pendingInspiration[type]=null;
 }
 async function addMediaList(container,record){
  if(!record.media?.length)return;
- const heading=document.createElement("h4");heading.textContent="Photos, videos & evidence";container.append(heading);
+ const heading=document.createElement("h4");heading.textContent="Inspiration, photos, videos & evidence";container.append(heading);
  const grid=document.createElement("div");grid.className="media-grid";container.append(grid);
  for(const file of record.media){
   const tile=document.createElement("a");tile.className="media-tile";tile.target="_blank";tile.rel="noopener noreferrer";
@@ -730,7 +815,7 @@ async function addMediaList(container,record){
   if(url&&file.type?.startsWith("image/")){preview=document.createElement("img");preview.src=url;preview.loading="lazy";preview.alt=file.name}
   else if(url&&file.type?.startsWith("video/")){preview=document.createElement("video");preview.src=url;preview.preload="metadata";preview.muted=true}
   else{preview=document.createElement("div");preview.className="media-placeholder";preview.textContent=file.type?.startsWith("video/")?"▶":"📄"}
-  const name=document.createElement("span");name.textContent=file.name+(url?"":" (unavailable)");tile.append(preview,name);grid.append(tile);
+  const name=document.createElement("span");name.textContent=(file.role==="inspiration"?"Inspiration · ":"")+file.name+(url?"":" (unavailable)");tile.append(preview,name);grid.append(tile);
  }
 }
 
@@ -759,7 +844,7 @@ const projectFields = [
     "projectEvidence", "projectApproval", "projectReferenceImage", "projectFundraising", "projectLocation", "projectEventType", "projectDemonstration", "projectReflectionBefore", "projectReflectionAfter"
 ];
 
-function openProjectForm(index = null) {
+function openProjectForm(index = null) { pendingInspiration.project=null;document.getElementById("projectInspirationPreview").hidden=true;
     editingProjectIndex = index;
     projectForm.reset();
 
