@@ -25,6 +25,21 @@
 .portfolio-card{transition:transform .2s,box-shadow .2s}
 .portfolio-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px #253c6520}
 @media(prefers-reduced-motion:reduce){.portfolio-card{transition:none}}
+
+/* Minimal editorial redesign */
+:root{--ink:#162a43;--line:#e3e9f2;--blue:#2459ce}
+body{background:#f7f9fc} .topbar{box-shadow:none} .topbar h1:before{display:none}
+.dashboard .card{border-radius:17px;box-shadow:0 4px 20px #223d6409}
+.portfolio-card{border-radius:18px;box-shadow:0 5px 24px #243b5c0b}
+.portfolio-cover{height:86px;background:linear-gradient(110deg,#e8effe,#f5f8ff);border-bottom:1px solid #e2eaf8}
+.portfolio-cover.project{background:linear-gradient(110deg,#e8f6f4,#f5faf9)}
+.portfolio-date{color:#5d7291}.portfolio-type{background:#fff;color:#3157a0;border:1px solid #dbe5f7}
+.portfolio-card:hover{transform:translateY(-2px)}
+.drag-handle{background:#f2f5fa!important;color:#506582!important;cursor:grab;touch-action:none;border:1px solid #e2e8f0;padding:7px 10px!important;font-size:1rem}
+.drag-handle:active{cursor:grabbing}.portfolio-card.dragging{opacity:.4}.portfolio-card.drag-over{outline:2px dashed #2459ce;outline-offset:4px}
+.order-hint{font-size:.84rem;color:#718299;margin:7px 0 0}.save-note{font-size:.83rem;color:#49617e;margin-top:12px}
+.save-note.error{color:#b03939}.portfolio-cover{align-items:center}
+@media(max-width:760px){.portfolio-cover{height:78px}}
 </style>
 </head>
 <body>
@@ -81,7 +96,7 @@
         <div class="section-heading">
             <div>
                 <h2>Experiences</h2>
-                <p class="muted">Your CAS experiences.</p>
+                <p class="muted">Your CAS experiences.</p><p class="order-hint">Drag the handle on a card to change its position. Your order is saved to the cloud.</p>
             </div>
             <button onclick="showForm()">+ Add Experience</button>
         </div>
@@ -403,6 +418,7 @@ async function loadCloud() {
   if (error) { setStatus("Load failed: " + error.message, true); return false; }
   cloudRows.experience = data.filter(row => row.record_type === "experience");
   cloudRows.project = data.filter(row => row.record_type === "project");
+  cloudRows.experience.sort((a,b) => (Number.isFinite(Number(a.content?.sortOrder)) ? Number(a.content.sortOrder) : new Date(a.created_at).getTime()) - (Number.isFinite(Number(b.content?.sortOrder)) ? Number(b.content.sortOrder) : new Date(b.created_at).getTime()));
   experiences = cloudRows.experience.map(row => row.content);
   projects = cloudRows.project.map(row => row.content);
   renderExperiences(); renderProjects(); renderProgress();
@@ -418,7 +434,7 @@ async function updateRecord(type, index, content) {
   const row = cloudRows[type][index];
   if (!row) throw new Error("Record not loaded. Refresh and try again.");
   const {error} = await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()})
-    .eq("id",row.id).eq("user_id",currentUser.id);
+    .eq("id",row.id).eq("user_id",currentUser.id).select("id");
   if (error) throw error;
 }
 async function deleteRecord(type, index) {
@@ -531,6 +547,7 @@ function showForm() {
     document.getElementById("experienceFormTitle").textContent = "New Experience";
     experienceForm.hidden = false;
     document.getElementById("name").focus();
+    restoreDraft("experience","new");
 }
 
 function hideForm() {
@@ -576,6 +593,7 @@ function editExperience(index) {
     document.getElementById("experienceFormTitle").textContent = "Edit Experience";
     experienceForm.hidden = false;
     experienceForm.scrollIntoView({behavior: "smooth", block: "start"});
+    restoreDraft("experience",cloudRows.experience[index]?.id);
 }
 
 function addText(parent, label, value) {
@@ -610,6 +628,16 @@ function renderPortfolioCard(type,record,index){
  const hours=project?record.projectHours:record.hoursPerWeek;const count=(record.media||[]).length;
  meta.textContent=[hours?hours+" hrs/week":null,count+" attachment"+(count===1?"":"s")].filter(Boolean).join("  ·  ");body.append(meta);
  const actions=document.createElement("div");actions.className="portfolio-actions";
+ if(!project){
+  const handle=makeButton("↕ Move",()=>{});handle.className="drag-handle";handle.title="Drag to rearrange";handle.setAttribute("aria-label","Drag to rearrange this experience");handle.draggable=true;
+  handle.addEventListener("dragstart",e=>{dragIndex=index;card.classList.add("dragging");e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",String(index))});
+  handle.addEventListener("dragend",()=>{dragIndex=null;card.classList.remove("dragging");document.querySelectorAll(".drag-over").forEach(x=>x.classList.remove("drag-over"))});
+  card.addEventListener("dragover",e=>{if(dragIndex===null)return;e.preventDefault();card.classList.add("drag-over")});
+  card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));
+  card.addEventListener("drop",async e=>{e.preventDefault();card.classList.remove("drag-over");if(dragIndex!==null&&dragIndex!==index)await reorderExperiences(dragIndex,index)});
+  actions.append(handle);
+ }
+
  const edit=makeButton("✎ Edit & add evidence",()=>project?openProjectForm(index):editExperience(index));actions.append(edit);
  const del=makeButton("Delete",async()=>{if(!confirm("Permanently delete this record? Existing uploaded files may remain in storage."))return;if(await withCloud(()=>deleteRecord(type,index)))project?closeProjectForm():hideForm()});del.classList.add("danger");actions.append(del);body.append(actions);
  const details=document.createElement("details");details.className="portfolio-details";const label=document.createElement("summary");label.textContent="View all CASMAP information";details.append(label);
@@ -644,26 +672,50 @@ function renderPortfolioCard(type,record,index){
  for(const [name] of groups){const b=document.createElement("button");b.type="button";b.className="cas-tab";b.textContent=name;b.setAttribute("role","tab");b.addEventListener("click",()=>display(name));tabBar.append(b)}
  details.replaceChildren(label,tabBar,panel);details.addEventListener("toggle",()=>{if(details.open)display("Overview")});body.append(details);return card;
 }
-function renderExperiences(){experienceList.replaceChildren();if(!experiences.length){experienceList.innerHTML='<div class="empty-state"><div class="empty-icon"></div><h3>Your CAS journey starts here</h3><p class="muted">Create your first experience and document your growth.</p></div>';return}experiences.forEach((item,i)=>experienceList.append(renderPortfolioCard("experience",item,i)))}
+let dragIndex=null;
+async function reorderExperiences(from,to){
+ if(busy||!currentUser)return;
+ const oldRows=[...cloudRows.experience];
+ const moved=cloudRows.experience.splice(from,1)[0];cloudRows.experience.splice(to,0,moved);
+ experiences=cloudRows.experience.map(r=>r.content);renderExperiences();
+ busy=true;setStatus("Saving new order…");
+ try{
+  const base=Date.now();
+  for(let i=0;i<cloudRows.experience.length;i++){
+   const row=cloudRows.experience[i];const content={...row.content,sortOrder:base+i};
+   const {data,error}=await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",row.id).eq("user_id",currentUser.id).select("id");
+   if(error||!data?.length)throw error||new Error("Order update was not confirmed");
+   row.content=content;
+  }
+  setStatus("Order saved in cloud ✓");
+ }catch(err){alert("Could not save the order: "+err.message);cloudRows.experience=oldRows;experiences=oldRows.map(r=>r.content)}
+ finally{busy=false;await loadCloud()}
+}
+function renderExperiences(){experienceList.replaceChildren();if(!experiences.length){experienceList.innerHTML='<div class="empty-state"><div class="empty-icon">▤</div><h3>Your CAS journey starts here</h3><p class="muted">Create your first experience and document your growth.</p></div>';return}experiences.forEach((item,i)=>experienceList.append(renderPortfolioCard("experience",item,i)))}
 // Evidence files are stored in a PRIVATE Supabase Storage bucket, not in HTML or public URLs.
 const MEDIA_BUCKET = "cas-evidence";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 function safeFileName(name) { return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-110); }
-async function saveWithMedia(type, index, content, fileInputId) {
-  const input = document.getElementById(fileInputId);
-  const files = Array.from(input.files || []);
-  for (const file of files) if (file.size > MAX_FILE_BYTES) throw new Error(file.name + " exceeds 25 MB. Compress it or use an external evidence link.");
-  const old = index === null ? null : (type === "experience" ? experiences[index] : projects[index]);
-  content.media = [...(old?.media || [])];
-  const id = index === null ? await insertRecord(type, content) : (await updateRecord(type,index,content),cloudRows[type][index].id);
-  for (const file of files) {
-    const path = `${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name)}`;
-    const {error} = await cloud.storage.from(MEDIA_BUCKET).upload(path,file,{upsert:false,contentType:file.type || "application/octet-stream"});
-    if (error) throw new Error("Upload of " + file.name + " failed: " + error.message);
-    content.media.push({name:file.name,path,type:file.type,size:file.size,uploadedAt:new Date().toISOString()});
-    const {error:saveError} = await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentUser.id);
-    if (saveError) throw saveError;
-  }
+async function saveWithMedia(type,index,content,fileInputId){
+ const input=document.getElementById(fileInputId);
+ const files=Array.from(input.files||[]);
+ for(const file of files)if(file.size>MAX_FILE_BYTES)throw new Error(file.name+" exceeds 25 MB.");
+ const old=index===null?null:(type==="experience"?experiences[index]:projects[index]);
+ content.media=[...(old?.media||[])];
+ if(type==="experience") content.sortOrder=old?.sortOrder ?? (Date.now()+Math.random());
+ const id=index===null?await insertRecord(type,content):(await updateRecord(type,index,content),cloudRows[type][index].id);
+ const failures=[];
+ for(const file of files){
+  try{
+   const path=`${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name)}`;
+   const {error}=await cloud.storage.from(MEDIA_BUCKET).upload(path,file,{upsert:false,contentType:file.type||"application/octet-stream"});
+   if(error)throw error;
+   content.media.push({name:file.name,path,type:file.type,size:file.size,uploadedAt:new Date().toISOString()});
+   const {error:saveError}=await cloud.from("cas_records").update({content,updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",currentUser.id);
+   if(saveError)throw saveError;
+  }catch(err){failures.push(file.name+": "+err.message)}
+ }
+ if(failures.length)alert("Your experience text was saved, but some attachments failed:\n"+failures.join("\n"));
 }
 async function addMediaList(container,record){
  if(!record.media?.length)return;
@@ -695,7 +747,7 @@ experienceForm.addEventListener("submit", async function(event) {
     experience.learningOutcomes = checkedValues(experienceForm, "learningOutcomes");
 
     const saved = await withCloud(() => saveWithMedia("experience",editingIndex,experience,"experienceMedia"));
-    if (saved) hideForm();
+    if (saved) {clearDraft("experience",editingIndex===null?"new":cloudRows.experience[editingIndex]?.id);hideForm();}
 });
 
 const projectFields = [
@@ -727,6 +779,7 @@ function openProjectForm(index = null) {
 
     projectForm.hidden = false;
     projectForm.scrollIntoView({behavior: "smooth", block: "start"});
+    restoreDraft("project",index===null?"new":cloudRows.project[index]?.id);
 }
 
 function closeProjectForm() {
@@ -735,7 +788,7 @@ function closeProjectForm() {
     projectForm.hidden = true;
 }
 
-function renderProjects(){projectList.replaceChildren();if(!projects.length){projectList.innerHTML='<div class="empty-state"><div class="empty-icon"></div><h3>Build something meaningful</h3><p class="muted">Add a collaborative CAS project to begin.</p></div>';return}projects.forEach((item,i)=>projectList.append(renderPortfolioCard("project",item,i)))}
+function renderProjects(){projectList.replaceChildren();if(!projects.length){projectList.innerHTML='<div class="empty-state"><div class="empty-icon">▤</div><h3>Build something meaningful</h3><p class="muted">Add a collaborative CAS project to begin.</p></div>';return}projects.forEach((item,i)=>projectList.append(renderPortfolioCard("project",item,i)))}
 
 projectForm.addEventListener("submit", async function(event) {
     event.preventDefault();
@@ -750,7 +803,7 @@ projectForm.addEventListener("submit", async function(event) {
     project.learningOutcomes = checkedValues(projectForm, "projectOutcomes");
 
     const saved = await withCloud(() => saveWithMedia("project",editingProjectIndex,project,"projectMedia"));
-    if (saved) closeProjectForm();
+    if (saved) {clearDraft("project",editingProjectIndex===null?"new":cloudRows.project[editingProjectIndex]?.id);closeProjectForm();}
 });
 
 function renderProgress() {
@@ -804,6 +857,34 @@ function renderProgress() {
         "Coverage reflects selected outcomes, not official CAS completion or coordinator approval."
     );
 }
+
+
+// Keep a local recovery draft while editing. Cloud Save remains explicit.
+function draftKey(type,id){return "cas_draft_"+currentUser?.id+"_"+type+"_"+id}
+function saveDraft(type){
+ if(!currentUser)return;
+ const form=type==="experience"?experienceForm:projectForm;
+ if(form.hidden)return;
+ const id=type==="experience"?(editingIndex===null?"new":cloudRows.experience[editingIndex]?.id):(editingProjectIndex===null?"new":cloudRows.project[editingProjectIndex]?.id);
+ const fields=type==="experience"?experienceFields:projectFields;
+ const values=Object.fromEntries(fields.map(k=>[k,document.getElementById(k).value]));
+ const group=type==="experience"?["strands","learningOutcomes"]:["projectStrands","projectOutcomes"];
+ values.__checks=Object.fromEntries(group.map(g=>[g,checkedValues(form,g)]));
+ try{localStorage.setItem(draftKey(type,id),JSON.stringify(values))}catch(e){}
+}
+function restoreDraft(type,id){
+ let draft;try{draft=JSON.parse(localStorage.getItem(draftKey(type,id))||"null")}catch(e){}
+ if(!draft)return;
+ if(!confirm("An unsaved draft exists for this item. Restore it?"))return;
+ const form=type==="experience"?experienceForm:projectForm;
+ for(const key of type==="experience"?experienceFields:projectFields)if(typeof draft[key]==="string")document.getElementById(key).value=draft[key];
+ for(const [group,values] of Object.entries(draft.__checks||{}))restoreChecks(form,group,values);
+}
+function clearDraft(type,id){try{localStorage.removeItem(draftKey(type,id))}catch(e){}}
+experienceForm.addEventListener("input",()=>saveDraft("experience"));
+experienceForm.addEventListener("change",()=>saveDraft("experience"));
+projectForm.addEventListener("input",()=>saveDraft("project"));
+projectForm.addEventListener("change",()=>saveDraft("project"));
 
 initializeAuth();
 </script>
