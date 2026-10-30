@@ -158,6 +158,65 @@ body[data-accent="teal"]{--premium-accent:#087f83}
 body[data-accent="violet"]{--premium-accent:#7354bd}
 body[data-accent="blue"]{--premium-accent:#245ad2}
 @media(max-width:760px){main{margin-top:25px}.personalize-bar{gap:8px}.rich-wrap .ql-toolbar.ql-snow{gap:0}.portfolio-body{padding:18px}}
+
+/* Compact theme picker and brand */
+.ivi-mark{display:inline-flex;align-items:center;justify-content:center;font-family:Manrope,sans-serif;font-size:.67rem;letter-spacing:.07em;font-weight:900;background:#152b54;color:#fff;border-radius:8px;padding:8px 9px;margin-right:10px;vertical-align:middle}
+.theme-control{position:relative}
+.theme-trigger{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.theme-panel{position:absolute;right:0;top:calc(100% + 12px);z-index:100;width:min(320px,calc(100vw - 24px));background:var(--surface,#fff);border:1px solid var(--line,#e4e9f1);box-shadow:0 20px 60px #111e3440;border-radius:16px;padding:17px;color:var(--ink,#172238)}
+.theme-panel[hidden]{display:none!important}
+.theme-panel-heading{display:flex;justify-content:space-between;align-items:center}
+.theme-panel-heading strong{font-size:.95rem}
+.theme-panel-heading button{padding:2px 8px!important;background:transparent!important;color:inherit!important;font-size:1.4rem;box-shadow:none}
+.theme-panel p{font-size:.78rem;color:var(--muted-ink,#69778d);margin:5px 0 15px}
+.theme-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.theme-options button{background:transparent!important;color:var(--ink,#172238)!important;border:1px solid transparent;border-radius:11px;padding:7px 4px!important;box-shadow:none!important;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.72rem}
+.theme-options button.selected{border-color:var(--accent,#245ad2);background:var(--hover-surface,#eef3fb)!important}
+.theme-swatch{display:block;width:39px;height:39px;border-radius:12px;border:1px solid #8190a34d;box-shadow:inset 0 0 0 3px #ffffff24}
+.swatch-light{background:linear-gradient(135deg,#f6f8fc 50%,#fff 50%)}
+.swatch-dark{background:linear-gradient(135deg,#121923 50%,#263245 50%)}
+.swatch-midnight{background:linear-gradient(135deg,#101b3d 50%,#263b78 50%)}
+.swatch-ocean{background:linear-gradient(135deg,#dceff2 50%,#a3d5df 50%)}
+.swatch-sage{background:linear-gradient(135deg,#e8f0e6 50%,#bfd8c5 50%)}
+.swatch-lavender{background:linear-gradient(135deg,#eee8fb 50%,#d5c5f2 50%)}
+.swatch-rose{background:linear-gradient(135deg,#fff0f2 50%,#f2c8d3 50%)}
+.swatch-sand{background:linear-gradient(135deg,#f6f0e5 50%,#e8d9bb 50%)}
+.clear-inspiration{display:block;margin-top:9px;background:#fff0f0!important;color:#a33141!important;padding:7px 12px!important;font-size:.8rem!important}
+.clear-inspiration[hidden]{display:none!important}
+/* Theme tokens */
+body{--page:#f6f7fa;--surface:#fff;--ink:#172238;--muted-ink:#69778d;--line:#e6ebf3;--hover-surface:#f0f4fb;--accent:#245ad2;--field:#fff;--cover:#f2f5fb;background:var(--page)!important;color:var(--ink)}
+body[data-theme="dark"]{--page:#111722;--surface:#1d2634;--ink:#ecf2fb;--muted-ink:#aab9cb;--line:#344357;--hover-surface:#2a374a;--accent:#7aa9ff;--field:#263345;--cover:#25364b;color-scheme:dark}
+body[data-theme="midnight"]{--page:#0c1430;--surface:#172346;--ink:#eaf0ff;--muted-ink:#aab9e0;--line:#324477;--hover-surface:#253663;--accent:#a6baff;--field:#1d2b52;--cover:#24345f;color-scheme:dark}
+body[data-theme="ocean"]{--page:#e6f3f5;--surface:#fff;--ink:#153a4b;--muted-ink:#567b87;--line:#c5e0e6;--hover-surface:#d9eef2;--accent:#087f91;--field:#f9feff;--cover:#d1ebf0}
+body[data-theme="sage"]{--page:#edf3eb;--surface:#fff;--ink:#253d31;--muted-ink:#647f6d;--line:#d5e3d7;--hover-surface:#e4f0e6;--accent:#477a58;--field:#fbfefb;--cover:#e2eee4}
+body[data-theme="lavender"]{--page:#f1edfb;--surface:#fff;--ink:#35294c;--muted-ink:#7d7096;--line:#e3d9f3;--hover-surface:#f0e8fa;--accent:#7954b8;--field:#fefcff;--cover:#eae0f8}
+body[data-theme="rose"]{--page:#fff0f3;--surface:#fff;--ink:#492d39;--muted-ink:#906b7b;--line:#f1dce3;--hover-surface:#fce8ee;--accent:#b95379;--field:#fffafd;--cover:#f8e1e9}
+body[data-theme="sand"]{--page:#f7f1e7;--surface:#fffdf9;--ink:#453729;--muted-ink:#867967;--line:#e8dece;--hover-surface:#f3e9da;--accent:#986c3c;--field:#fffefa;--cover:#f1e6d6}
+body .topbar,body .card,body .auth-shell,body form.card,body .personalize-bar{background:var(--surface)!important;color:var(--ink)!important;border-color:var(--line)!important}
+body .topbar{box-shadow:0 1px 0 var(--line)}
+body h1,body h2,body h3,body h4,body .portfolio-body h3,body .detail-line strong,body legend,body form label{color:var(--ink)}
+body .muted,body .portfolio-summary,body .portfolio-meta,body .detail-line span,body .rich-render,body .rich-wrap .ql-editor{color:var(--muted-ink)}
+body input:not([type=checkbox]),body textarea,body select{background:var(--field)!important;color:var(--ink)!important;border-color:var(--line)!important}
+body .portfolio-cover{background:var(--cover)!important;border-color:var(--line)}
+body .portfolio-type,body .pill{background:var(--hover-surface);color:var(--accent)}
+body .portfolio-date{color:var(--muted-ink)}
+body .portfolio-details,body .portfolio-meta,body .detail-line{border-color:var(--line)}
+body .portfolio-details summary,body .text-button{color:var(--accent)}
+body button:not(.secondary):not(.text-button):not(.media-remove):not(.clear-inspiration):not(.cas-tab):not(.ql-toolbar button):not([data-theme-option]):not(#themeClose){background:var(--accent);color:var(--page)}
+body .secondary{background:var(--hover-surface)!important;color:var(--ink)!important}
+body .rich-wrap{background:var(--surface);border-color:var(--line)}
+body .rich-wrap .ql-toolbar.ql-snow{background:var(--hover-surface);border-color:var(--line)}
+body .rich-wrap .ql-container.ql-snow,body .rich-wrap .ql-editor{background:var(--field);color:var(--ink)}
+body .ql-snow .ql-stroke{stroke:var(--ink)}
+body .ql-snow .ql-fill{fill:var(--ink)}
+body .ql-snow .ql-picker{color:var(--ink)}
+body .ql-snow .ql-picker-options{background:var(--surface);border-color:var(--line)}
+body .paste-zone{background:var(--hover-surface);border-color:var(--line)}
+body .paste-zone strong{color:var(--ink)}
+body .paste-zone small{color:var(--muted-ink)}
+body .empty-state{background:var(--surface);border-color:var(--line)}
+body .ivi-mark{background:var(--accent);color:var(--page)}
+@media(max-width:760px){.theme-panel{right:auto;left:0}.theme-trigger span{display:none}}
 </style>
 </head>
 <body>
@@ -176,20 +235,31 @@ body[data-accent="blue"]{--premium-accent:#245ad2}
 
 <header class="topbar">
     <div>
-        <h1>CAS Portfolio</h1>
+        <h1><span class="ivi-mark" aria-label="IVI">IVI</span> CAS Portfolio</h1>
         <p class="muted">Creativity · Activity · Service</p>
     </div>
-    <div class="account-bar"><span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
+    <div class="account-bar">
+      <div class="theme-control">
+        <button type="button" id="themeToggle" class="theme-trigger secondary" aria-label="Customize theme" aria-expanded="false" aria-controls="themePanel">◐ <span>Theme</span></button>
+        <div id="themePanel" class="theme-panel" hidden>
+          <div class="theme-panel-heading"><strong>Appearance</strong><button type="button" id="themeClose" aria-label="Close theme settings">×</button></div>
+          <p>Make this portfolio yours.</p>
+          <div class="theme-options" role="group" aria-label="Portfolio theme">
+            <button type="button" data-theme-option="light"><span class="theme-swatch swatch-light"></span>Light</button>
+            <button type="button" data-theme-option="dark"><span class="theme-swatch swatch-dark"></span>Dark</button>
+            <button type="button" data-theme-option="midnight"><span class="theme-swatch swatch-midnight"></span>Midnight</button>
+            <button type="button" data-theme-option="ocean"><span class="theme-swatch swatch-ocean"></span>Ocean</button>
+            <button type="button" data-theme-option="sage"><span class="theme-swatch swatch-sage"></span>Sage</button>
+            <button type="button" data-theme-option="lavender"><span class="theme-swatch swatch-lavender"></span>Lavender</button>
+            <button type="button" data-theme-option="rose"><span class="theme-swatch swatch-rose"></span>Rose</button>
+            <button type="button" data-theme-option="sand"><span class="theme-swatch swatch-sand"></span>Sand</button>
+          </div>
+        </div>
+      </div><span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
 </header>
 
 <main>
     <section id="dashboard">
-      <div class="personalize-bar" aria-label="Personalize your portfolio">
-        <label for="portfolioFont">Writing font</label>
-        <select id="portfolioFont"><option value="default">Modern sans</option><option value="serif">Classic serif</option><option value="rounded">Rounded</option><option value="mono">Monospace</option></select>
-        <label for="portfolioAccent">Accent color</label>
-        <select id="portfolioAccent"><option value="blue">Blue</option><option value="teal">Teal</option><option value="violet">Violet</option></select>
-      </div>
         <h2>Welcome back.</h2>
         <p class="muted">Your CAS portfolio, in one place.</p>
 
@@ -303,7 +373,7 @@ body[data-accent="blue"]{--premium-accent:#245ad2}
               <strong>Inspiration image — paste a screenshot here</strong>
               <small>Click here, then press ⌘V (Mac) or Ctrl+V (Windows). You can also select an image below.</small>
               <input id="experienceInspirationFile" type="file" accept="image/*" aria-label="Choose inspiration image">
-              <img id="experienceInspirationPreview" alt="Inspiration image preview" hidden>
+              <img id="experienceInspirationPreview" alt="Inspiration image preview" hidden><button id="experienceClearInspiration" type="button" class="clear-inspiration" hidden>× Remove screenshot</button>
             </div>
             <label for="riskAssessment">Risk assessment (physical, emotional, security)</label><textarea id="riskAssessment"></textarea>
             <label for="fundraising">Fundraising plan / how budget will be obtained</label><textarea id="fundraising"></textarea>
@@ -458,7 +528,7 @@ body[data-accent="blue"]{--premium-accent:#245ad2}
               <strong>Inspiration image — paste a screenshot here</strong>
               <small>Click here, then press ⌘V or Ctrl+V. Or choose an image below.</small>
               <input id="projectInspirationFile" type="file" accept="image/*" aria-label="Choose project inspiration image">
-              <img id="projectInspirationPreview" alt="Project inspiration preview" hidden>
+              <img id="projectInspirationPreview" alt="Project inspiration preview" hidden><button id="projectClearInspiration" type="button" class="clear-inspiration" hidden>× Remove screenshot</button>
             </div>
             <label for="projectFundraising">How will funds be obtained?</label><textarea id="projectFundraising"></textarea>
             <label for="projectLocation">Location / in-school or community</label><input id="projectLocation">
@@ -677,7 +747,7 @@ function showPage(page) {
     if (page === "progress") renderProgress();
 }
 
-function showForm() { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;
+function showForm() { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;document.getElementById("experienceClearInspiration").hidden=true;
     editingIndex = null;
     experienceForm.reset();syncEditorsFromFields(experienceForm);
     document.getElementById("experienceFormTitle").textContent = "New Experience";
@@ -712,7 +782,7 @@ function restoreChecks(form, group, values) {
     });
 }
 
-function editExperience(index) { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;
+function editExperience(index) { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;document.getElementById("experienceClearInspiration").hidden=true;
     const experience = experiences[index];
     if (!experience) return;
 
@@ -869,13 +939,20 @@ function initializePasteZone(type){
  const zone=document.getElementById(prefix+"PasteZone");
  const input=document.getElementById(prefix+"InspirationFile");
  const preview=document.getElementById(prefix+"InspirationPreview");
+ const clear=document.getElementById(prefix+"ClearInspiration");
+ const clearFile=()=>{
+  pendingInspiration[type]=null;input.value="";
+  if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);
+  delete preview.dataset.objectUrl;preview.removeAttribute("src");preview.hidden=true;clear.hidden=true;
+ };
+ clear.addEventListener("click",clearFile);
  const setFile=file=>{
   if(!file||!file.type.startsWith("image/"))return;
   if(file.size>MAX_FILE_BYTES){alert("Image exceeds 25 MB.");return}
   pendingInspiration[type]=file;
   if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);
   preview.dataset.objectUrl=URL.createObjectURL(file);
-  preview.src=preview.dataset.objectUrl;preview.hidden=false;
+  preview.src=preview.dataset.objectUrl;preview.hidden=false;clear.hidden=false;
  };
  input.addEventListener("change",()=>setFile(input.files?.[0]));
  zone.addEventListener("paste",event=>{
@@ -954,6 +1031,31 @@ function syncFieldsFromEditors(form){
   area.value=text?RICH_PREFIX+safeRichHTML(editor.root.innerHTML):"";
  }
 }
+
+function setupThemes(){
+ const valid=["light","dark","midnight","ocean","sage","lavender","rose","sand"];
+ const toggle=document.getElementById("themeToggle"),panel=document.getElementById("themePanel"),close=document.getElementById("themeClose");
+ const apply=name=>{
+  if(!valid.includes(name))name="light";
+  document.body.dataset.theme=name;
+  localStorage.setItem("cas-portfolio-theme",name);
+  for(const button of panel.querySelectorAll("[data-theme-option]")){
+   const selected=button.dataset.themeOption===name;
+   button.classList.toggle("selected",selected);
+   button.setAttribute("aria-pressed",String(selected));
+  }
+ };
+ const hide=()=>{panel.hidden=true;toggle.setAttribute("aria-expanded","false")};
+ toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;toggle.setAttribute("aria-expanded",String(!panel.hidden))});
+ close.addEventListener("click",hide);
+ panel.addEventListener("click",event=>{
+  const button=event.target.closest("[data-theme-option]");
+  if(button){apply(button.dataset.themeOption);hide()}
+ });
+ document.addEventListener("pointerdown",event=>{if(!panel.hidden&&!event.target.closest(".theme-control"))hide()});
+ document.addEventListener("keydown",event=>{if(event.key==="Escape")hide()});
+ apply(localStorage.getItem("cas-portfolio-theme")||"light");
+}
 function setupWritingTools(){
  const fields=document.querySelectorAll("#experienceForm textarea,#projectForm textarea");
  if(typeof Quill!=="undefined"){
@@ -984,15 +1086,11 @@ function setupWritingTools(){
   console.warn("Rich text editor unavailable; using plain-text fallback.");
   for(const area of fields){area.placeholder="Editor could not load. You can still type and save plain text."}
  }
- const font=document.getElementById("portfolioFont"),accent=document.getElementById("portfolioAccent");
- const allowedFonts=["default","serif","rounded","mono"],allowedAccents=["blue","teal","violet"];
- const savedFont=localStorage.getItem("cas-ui-font"),savedAccent=localStorage.getItem("cas-ui-accent");
- font.value=allowedFonts.includes(savedFont)?savedFont:"default";
- accent.value=allowedAccents.includes(savedAccent)?savedAccent:"blue";
- const apply=()=>{document.body.dataset.font=font.value;document.body.dataset.accent=accent.value;localStorage.setItem("cas-ui-font",font.value);localStorage.setItem("cas-ui-accent",accent.value)};
- font.addEventListener("change",apply);accent.addEventListener("change",apply);apply();
+ // Appearance is controlled from the compact theme menu in the header.
+
 }
 setupWritingTools();
+setupThemes();
 
 async function removeMediaFromRecord(type,index,file){
  if(busy||!currentUser)return;
@@ -1060,7 +1158,7 @@ const projectFields = [
     "projectEvidence", "projectApproval", "projectReferenceImage", "projectFundraising", "projectLocation", "projectEventType", "projectDemonstration", "projectReflectionBefore", "projectReflectionAfter"
 ];
 
-function openProjectForm(index = null) { pendingInspiration.project=null;document.getElementById("projectInspirationPreview").hidden=true;
+function openProjectForm(index = null) { pendingInspiration.project=null;document.getElementById("projectInspirationPreview").hidden=true;document.getElementById("projectClearInspiration").hidden=true;
     editingProjectIndex = index;
     projectForm.reset();
 
