@@ -765,7 +765,7 @@ document.getElementById("signupButton").addEventListener("click", async () => {
   const password = document.getElementById("authPassword").value;
   if (!email || password.length < 6) return setAuthMessage("Enter an email and password (at least 6 characters).",true);
   setAuthMessage("Creating account…");
-  const {data,error} = await cloud.auth.signUp({email,password});
+  const {data,error} = await cloud.auth.signUp({email,password,options:{emailRedirectTo:location.origin + location.pathname}});
   if (error) return setAuthMessage(error.message,true);
   if (data.session && data.user) await enterAccount(data.user);
   else setAuthMessage("Account created. Check your email to confirm, then log in.");

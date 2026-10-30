@@ -16,7 +16,8 @@ seguimiento de los 7 Learning Outcomes.
   - tabla `cas_teacher_shares` (hash SHA-256 del token del link del profesor)
   - storage bucket `cas-evidence` (privado, se sirve con signed URLs de 1 h)
   - edge function `teacher-view` (valida el token y devuelve el portafolio en solo lectura)
-- **Hosting:** Netlify (deploy continuo desde `main`)
+- **Hosting:** Netlify — <https://ibdpcasmap.netlify.app>
+  (espejo en GitHub Pages: <https://diegogi19.github.io/CAS-MAP/>)
 
 ## Desarrollo local
 
@@ -30,18 +31,28 @@ python3 -m http.server 4173
 
 ## Deploy
 
-El deploy es automático: cada push a `main` dispara un build en Netlify.
-No hay comando de build; `netlify.toml` publica la raíz del repo y añade los
+No hay comando de build: `netlify.toml` publica la raíz del repo y añade los
 headers de caché y seguridad (CSP incluida).
+
+El sitio se creó con **drag & drop**, así que hoy el deploy **no** es
+continuo: un push a `main` no actualiza producción. Para activarlo, en Netlify
+→ *Site configuration → Build & deploy → Continuous deployment → Link
+repository* → `diegogi19/CAS-MAP`, branch `main`, build command vacío, publish
+`.`. Hasta entonces, cada cambio hay que volver a arrastrar la carpeta — y
+`netlify.toml` sólo se aplica si va incluida en lo que se arrastra.
 
 ### Checklist al cambiar de dominio
 
 1. **Supabase → Authentication → URL Configuration**
-   - `Site URL`: el dominio de producción (lo usan los correos de confirmación
-     de cuenta, porque `signUp()` no pasa `emailRedirectTo`).
-   - `Redirect URLs`: añadir el dominio de producción, los deploy previews de
-     Netlify (`https://*--<sitio>.netlify.app/**`) y `http://localhost:4173/**`.
-     Lo usa el reset de contraseña (`redirectTo: location.origin + location.pathname`).
+   - `Site URL`: `https://ibdpcasmap.netlify.app` — es el fallback de los
+     correos de Supabase.
+   - `Redirect URLs`: `https://ibdpcasmap.netlify.app/**`,
+     `https://*--ibdpcasmap.netlify.app/**` (deploy previews),
+     `https://diegogi19.github.io/CAS-MAP/**` (mientras Pages siga vivo) y
+     `http://localhost:4173/**`. Supabase valida contra esta lista tanto el
+     `emailRedirectTo` del signup como el `redirectTo` del reset de contraseña;
+     ambos usan `location.origin + location.pathname`, así que el correo vuelve
+     al origin desde el que se registró el alumno.
 2. **`netlify.toml`** — si cambia el proyecto de Supabase, actualizar el host
    en la `Content-Security-Policy` (`connect-src`, `img-src`, `media-src`).
 3. Probar: signup → confirmación por correo → login → subir evidencia →
