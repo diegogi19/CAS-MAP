@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Teacher View | CAS Portfolio</title>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172338;background:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;min-height:100vh}header{background:#fff;border-bottom:1px solid #e4e9f2}
+.header-inner{max-width:1180px;margin:auto;padding:23px 28px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;gap:13px;align-items:center;font-size:1.1rem;font-weight:800;letter-spacing:-.035em}.ib{background:#234eaa;color:white;border-radius:9px;padding:9px 10px;font-size:.75rem;letter-spacing:.04em}
+.readonly{border:1px solid #d6e5db;background:#f0f9f3;color:#2e7651;border-radius:999px;padding:8px 13px;font-size:.76rem;font-weight:750}
+main{max-width:1180px;margin:50px auto;padding:0 28px 60px}
+.eyebrow{color:#4f6fa6;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+h1{font-size:clamp(2.1rem,5vw,3.3rem);letter-spacing:-.07em;margin:12px 0}
+.subtitle{color:#6b7890;line-height:1.65;max-width:700px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:25px 0}
+button{background:#245ad2;color:white;border:0;padding:11px 16px;border-radius:10px;cursor:pointer;font-weight:700}
+button.secondary{background:#eaf0f9;color:#26416c}
+button:hover{filter:brightness(.96)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:30px 0}
+.metric{background:white;border:1px solid #e7ecf3;border-radius:17px;padding:24px;box-shadow:0 6px 24px #15274b07}
+.metric .value{font-size:2.3rem;font-weight:850;letter-spacing:-.06em}.metric .label{color:#6a7891;font-size:.85rem;margin-top:6px}
+.panel{background:#fff;border:1px solid #e7ecf3;border-radius:18px;padding:26px;margin:24px 0;box-shadow:0 8px 28px #15274b07}
+.panel h2{font-size:1.4rem;letter-spacing:-.04em;margin:0 0 17px}
+.strand-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.strand{background:#f6f8fc;border-radius:12px;padding:16px}.strand strong{display:block;font-size:1.4rem;margin-top:5px}
+.strand small{color:#718098}
+.outcomes{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.outcome{border:1px solid #e5ebf3;border-radius:10px;text-align:center;padding:13px 4px}
+.outcome b{display:block;color:#244f9f}.outcome span{font-size:.78rem;color:#6a7891}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:25px 0 14px}
+.tabs button{background:#eaf0f9;color:#345071}.tabs button.active{background:#245ad2;color:#fff}
+.record-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;align-items:start}
+.record{border:1px solid #e6ecf4;border-radius:17px;background:white;overflow:hidden;box-shadow:0 8px 30px #15274b08}
+.record-top{height:7px;background:linear-gradient(90deg,#326ad6,#a4bff6)}.record.project .record-top{background:linear-gradient(90deg,#278e8e,#b5e5dd)}
+.record-body{padding:24px}.record-type{color:#5075b3;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.record h3{font-size:1.35rem;letter-spacing:-.045em;margin:9px 0 7px}
+.record-summary{color:#6a7891;font-size:.87rem;line-height:1.6}
+.record details{margin-top:18px;border-top:1px solid #edf0f5;padding-top:15px}
+.record summary{cursor:pointer;color:#2d58a2;font-weight:750}
+.detail{border-bottom:1px solid #f0f2f6;padding:14px 0;min-width:0}
+.detail:last-child{border:0}
+.detail-label{font-size:.7rem;color:#72819a;letter-spacing:.06em;text-transform:uppercase;font-weight:800;margin-bottom:8px}
+.detail-value{font-size:.91rem;line-height:1.7;color:#34435a;overflow-wrap:anywhere}
+.detail-value ul,.detail-value ol{padding-left:22px}.detail-value li{padding-left:3px}
+.detail-value p{margin:0 0 7px}.detail-value h1{font-size:1.35rem}.detail-value h2{font-size:1.15rem}.detail-value h3{font-size:1rem}
+.detail-value a{color:#245ad2}
+.detail-value .ql-align-center{text-align:center}.detail-value .ql-align-right{text-align:right}.detail-value .ql-align-justify{text-align:justify}
+.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0}
+.media-card{background:#f6f8fb;border:1px solid #e6ecf4;border-radius:11px;overflow:hidden}
+.media-card img,.media-card video{display:block;width:100%;max-height:200px;object-fit:contain;background:#edf1f7}
+.media-card a{display:block;padding:9px 12px;font-size:.77rem;overflow-wrap:anywhere;color:#2855a4}
+.status{padding:17px 19px;background:#edf3fd;border-radius:12px;color:#33568e;line-height:1.5;margin:20px 0}
+.empty{padding:45px 20px;text-align:center;color:#7b889b;border:1px dashed #ccd7e7;border-radius:15px}
+footer{color:#8290a5;font-size:.77rem;margin-top:45px}
+@media(max-width:780px){main{margin-top:30px}.record-grid{grid-template-columns:1fr}.outcomes{grid-template-columns:repeat(4,1fr)}.cards{gap:8px}.metric{padding:15px}.metric .value{font-size:1.8rem}.strand-list{grid-template-columns:1fr}.header-inner{padding:17px 20px}}
+</style>
+</head>
+<body>
+<header><div class="header-inner"><div class="brand"><span class="ib">IB</span><span>CAS Portfolio <small style="display:block;font-size:.7rem;font-weight:500;color:#718099;letter-spacing:0">International Baccalaureate · Teacher View</small></span></div><span class="readonly">◉ Read-only access</span></div></header>
+<main>
+<div class="eyebrow">Teacher dashboard</div>
+<h1>CAS learning journey</h1>
+<p class="subtitle">A live, read-only view of the student's experiences, projects, reflections and supporting evidence. Changes appear after refreshing the page.</p>
+<div class="actions"><button id="refresh">↻ Refresh progress</button><button id="print" class="secondary">Print summary</button><span id="updated" style="font-size:.78rem;color:#78869a"></span></div>
+<div id="status" class="status">Loading shared portfolio…</div>
+<section id="portfolio" hidden>
+ <div class="cards">
+  <div class="metric"><div id="expCount" class="value">0</div><div class="label">Experiences</div></div>
+  <div class="metric"><div id="projCount" class="value">0</div><div class="label">Projects</div></div>
+  <div class="metric"><div id="evidenceCount" class="value">0</div><div class="label">Evidence files</div></div>
+ </div>
+ <div class="panel"><h2>CAS strands</h2><div class="strand-list" id="strands"></div></div>
+ <div class="panel"><h2>Learning outcomes</h2><p class="subtitle" style="font-size:.83rem">Counts show how many records reference each outcome, not an official IB completion percentage.</p><div class="outcomes" id="outcomes"></div></div>
+ <div class="tabs"><button id="showAll" class="active">All records</button><button id="showExperiences">Experiences</button><button id="showProjects">Projects</button></div>
+ <div id="records" class="record-grid"></div>
+</section>
+<footer>IB is a reference to the International Baccalaureate programme. This student portfolio is not an official IB website. Access is limited to viewing shared information.</footer>
+</main>
+<script>
+"use strict";
+const SUPABASE_URL="https://ltessdscljvbjgkgpjnr.supabase.co";
+const ENDPOINT=SUPABASE_URL+"/functions/v1/teacher-view";
+const status=document.getElementById("status");
+const portfolio=document.getElementById("portfolio");
+let records=[],filter="all",token="";
+const $=id=>document.getElementById(id);
+const PREFIX="CAS_RICH_HTML_V1:";
+const pretty=k=>k.replace(/([a-z])([A-Z])/g,"$1 $2").replace(/[_-]/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+const text=v=>typeof v==="string"?v:Array.isArray(v)?v.join(", "):typeof v==="object"?JSON.stringify(v):String(v??"");
+function cleanRich(v){
+ if(!String(v).startsWith(PREFIX))return null;
+ if(!window.DOMPurify)return null;
+ return DOMPurify.sanitize(v.slice(PREFIX.length),{ALLOWED_TAGS:["p","br","strong","b","em","i","u","s","h1","h2","h3","ul","ol","li","blockquote","a","span","div"],ALLOWED_ATTR:["href","target","rel","class","style"],FORBID_TAGS:["img","video","iframe","script","svg","math","form","input"]});
+}
+function contentNode(v){
+ const el=document.createElement("div");el.className="detail-value";
+ const html=typeof v==="string"?cleanRich(v):null;
+ if(html!==null)el.innerHTML=html;
+ else el.textContent=text(v).replace(PREFIX,"");
+ for(const a of el.querySelectorAll("a")){a.target="_blank";a.rel="noopener noreferrer"}
+ return el;
+}
+function add(tag,parent,cls,content){
+ const el=document.createElement(tag);if(cls)el.className=cls;
+ if(content!==undefined)el.textContent=content;parent.append(el);return el;
+}
+function getTitle(c,type){return c.name||c.projectName||c.title||c.projectTitle||c.experienceTitle||c.activityName|| (type==="project"?"Untitled project":"Untitled experience")}
+function valuesFor(c,key){
+ const v=c[key];
+ if(Array.isArray(v))return v.map(x=>String(x).toLowerCase());
+ if(typeof v==="string")return v.toLowerCase().split(/[,;]/).map(x=>x.trim());
+ return [];
+}
+function render(){
+ const ex=records.filter(r=>r.type==="experience"),pr=records.filter(r=>r.type==="project");
+ $("expCount").textContent=ex.length;$("projCount").textContent=pr.length;
+ $("evidenceCount").textContent=records.reduce((n,r)=>n+(r.content.media?.length||0),0);
+ const strands=$("strands");strands.replaceChildren();
+ for(const name of ["Creativity","Activity","Service"]){
+  const count=records.filter(r=>valuesFor(r.content,"strands").includes(name.toLowerCase())).length;
+  const el=add("div",strands,"strand");add("small",el,"",name);add("strong",el,"",String(count));add("small",el,"","records");
+ }
+ const outcomes=$("outcomes");outcomes.replaceChildren();
+ for(let i=1;i<=7;i++){
+  const id="LO"+i;
+  const count=records.filter(r=>{
+   const c=r.content;
+   const entries=[...valuesFor(c,"learningOutcomes"),...valuesFor(c,"outcomes"),...valuesFor(c,"learning_outcomes")];
+   return entries.some(v=>new RegExp("\\b(?:lo\\s*"+i+"|learning outcome\\s*"+i+")\\b","i").test(v));
+  }).length;
+  const el=add("div",outcomes,"outcome");add("b",el,"",id);add("span",el,"",count+" records");
+ }
+ const target=$("records");target.replaceChildren();
+ const selected=records.filter(r=>filter==="all"||r.type===filter);
+ if(!selected.length){add("div",target,"empty","No shared records in this category yet.");return}
+ for(const r of selected){
+  const c=r.content||{},article=add("article",target,"record"+(r.type==="project"?" project":""));
+  add("div",article,"record-top");
+  const body=add("div",article,"record-body");
+  add("div",body,"record-type",r.type==="project"?"CAS Project":"CAS Experience");
+  add("h3",body,"",getTitle(c,r.type));
+  const summary=c.description||c.projectDescription||c.goals||c.projectGoals||"";
+  const preview=contentNode(summary).textContent||"";
+  if(preview)add("p",body,"record-summary",preview.slice(0,210)+(preview.length>210?"…":""));
+  const details=add("details",body);add("summary",details,"","View reflections, details & evidence");
+  for(const [key,value] of Object.entries(c)){
+   if(["media","sortOrder"].includes(key)||value===null||value===""||Array.isArray(value)&&!value.length)continue;
+   const section=add("section",details,"detail");add("div",section,"detail-label",pretty(key));section.append(contentNode(value));
+  }
+  if(c.media?.length){
+   const section=add("section",details,"detail");add("div",section,"detail-label","Photos, screenshots, videos & documents");
+   const grid=add("div",section,"media-grid");
+   for(const f of c.media){
+    const item=add("div",grid,"media-card");
+    if(f.url&&typeof f.type==="string"&&f.type.startsWith("image/")){const img=add("img",item);img.src=f.url;img.alt=f.name||"CAS evidence";img.loading="lazy"}
+    else if(f.url&&typeof f.type==="string"&&f.type.startsWith("video/")){const video=add("video",item);video.src=f.url;video.controls=true;video.preload="metadata"}
+    const link=add("a",item,"",f.name||"View evidence");
+    if(f.url){link.href=f.url;link.target="_blank";link.rel="noopener noreferrer"}
+    else{link.removeAttribute("href");link.textContent=(f.name||"Evidence")+" (unavailable)"}
+   }
+  }
+ }
+}
+async function load(){
+ status.hidden=false;status.textContent="Refreshing shared portfolio…";
+ portfolio.hidden=true;
+ try{
+  const response=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token}),cache:"no-store"});
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.error||"Could not load the shared portfolio");
+  records=Array.isArray(data.records)?data.records:[];
+  records.sort((a,b)=>a.type===b.type?(Number(a.content.sortOrder)||new Date(a.created_at).getTime())-(Number(b.content.sortOrder)||new Date(b.created_at).getTime()):a.type==="experience"?-1:1);
+  render();portfolio.hidden=false;status.hidden=true;
+  $("updated").textContent="Updated "+new Date().toLocaleString();
+ }catch(error){status.textContent=error.message+" — Ask the student for a new sharing link if access has been revoked."}
+}
+for(const [id,value] of [["showAll","all"],["showExperiences","experience"],["showProjects","project"]]){
+ $(id).addEventListener("click",()=>{
+  filter=value;
+  for(const b of document.querySelectorAll(".tabs button"))b.classList.toggle("active",b.id===id);
+  render();
+ });
+}
+$("refresh").addEventListener("click",load);
+$("print").addEventListener("click",()=>window.print());
+const params=new URLSearchParams(location.hash.slice(1));
+token=params.get("access")||"";
+if(!/^[a-f0-9]{64}$/.test(token))status.textContent="This link is missing or invalid. Ask the student to generate a Teacher View link.";
+else load();
+</script>
+</body>
+</html>
