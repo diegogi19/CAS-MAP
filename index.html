@@ -5,11 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAS Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{font-family:'DM Sans',system-ui,sans-serif;color:#18283a;background:#f5f7fb;font-synthesis:none}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top left,#e9f0ff 0,transparent 38%),#f6f8fc}button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;background:#235ad4;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;transition:transform .15s,box-shadow .15s,background .15s}button:hover{transform:translateY(-1px);box-shadow:0 7px 18px #2047a022}button.secondary{background:#eaf0fa;color:#274363}button.text-button{background:transparent;color:#2456bb;padding:8px 0;box-shadow:none}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #94b9ff;outline-offset:2px}[hidden]{display:none!important}h1,h2,h3,h4{font-family:Manrope,system-ui,sans-serif;letter-spacing:-.035em}h1{font-size:1.35rem;margin:0}h2{font-size:clamp(1.6rem,3vw,2.4rem);margin:0 0 7px}h3{margin:0 0 10px}p{line-height:1.6}.muted{color:#748398}.topbar{background:#fffdfef5;border-bottom:1px solid #e5eaf3;display:flex;align-items:center;justify-content:space-between;padding:20px max(25px,calc((100vw - 1180px)/2));gap:18px;box-shadow:0 2px 16px #1a38600a}.topbar h1:before{content:'✦';display:inline-grid;place-items:center;background:#235ad4;color:white;width:35px;height:35px;border-radius:11px;margin-right:12px}.topbar p{margin:3px 0 0 48px;font-size:.82rem}.account-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.account-bar button{padding:9px 12px}.account-bar span{font-size:.82rem}main{max-width:1180px;margin:42px auto;padding:0 24px 100px}.dashboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:28px}.card{background:#fff;border:1px solid #e6ebf4;border-radius:20px;box-shadow:0 9px 30px #253c6510;padding:26px}.dashboard .card{min-height:190px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between}.dashboard .card h3{font-size:1.3rem}.section-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:24px 0}.section-heading p{margin:0}.auth-shell{background:#fff!important;box-shadow:0 25px 75px #203d6920!important;margin:8vh auto!important;padding:36px!important}.auth-shell h2{font-size:1.8rem}form.card{max-width:900px;margin:26px auto;padding:34px}form.card h3{font-size:1.55rem;margin-bottom:20px}form label{display:block;font-size:.86rem;font-weight:700;color:#344760;margin:19px 0 7px}input:not([type=checkbox]),textarea,select{width:100%;border:1px solid #d8e1ef;border-radius:11px;background:#fbfcff;color:#18283a;padding:12px 13px;min-height:45px}textarea{min-height:105px;resize:vertical}input[type=file]{border:2px dashed #aac1eb;background:#f1f6ff;padding:24px}fieldset{border:1px solid #e0e7f3;border-radius:14px;margin:24px 0;padding:16px}legend{font-weight:800;color:#344760;padding:0 8px}.choice{display:flex;gap:10px;align-items:center;margin:10px 0;font-weight:500}.choice input{accent-color:#235ad4}.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}#experienceList,#projectList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px}.portfolio-card{padding:0;overflow:hidden;display:flex;flex-direction:column}.portfolio-cover{height:126px;background:linear-gradient(120deg,#244db8,#6a94f5);position:relative;display:flex;align-items:flex-start;justify-content:space-between;padding:20px}.portfolio-cover.project{background:linear-gradient(120deg,#123e60,#2897a3)}.portfolio-cover:after{content:'✦';position:absolute;right:35px;bottom:-54px;font-size:145px;color:#ffffff17;line-height:1}.portfolio-type{background:#ffffffeb;border-radius:99px;padding:7px 12px;color:#20468f;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;z-index:1}.portfolio-cover.project .portfolio-type{color:#17606b}.portfolio-date{color:#fff;font-size:.83rem;z-index:1}.portfolio-body{padding:24px;flex:1;display:flex;flex-direction:column}.portfolio-body h3{font-size:1.35rem;margin:0 0 7px;overflow-wrap:anywhere}.portfolio-summary{color:#66778e;font-size:.92rem;margin:0 0 16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:45px}.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}.pill{font-size:.74rem;font-weight:700;background:#edf3ff;color:#2754ad;border-radius:100px;padding:6px 10px}.pill.service{background:#e7f7ee;color:#247a50}.pill.activity{background:#fff2e5;color:#ad681c}.portfolio-meta{display:flex;gap:15px;flex-wrap:wrap;color:#75849b;font-size:.81rem;padding:14px 0;border-top:1px solid #e9edf4}.portfolio-actions{display:flex;gap:8px;margin-top:auto;padding-top:10px}.portfolio-actions button{flex:1}.portfolio-actions .danger{background:#fff0f0;color:#ae3c3c;flex:0}.portfolio-details{margin-top:14px;border-top:1px solid #edf0f5;padding-top:10px}.portfolio-details summary{cursor:pointer;color:#235ad4;font-weight:800;padding:8px 0}.detail-line{padding:9px 0;border-bottom:1px solid #f0f3f8}.detail-line strong{display:block;color:#445a75;font-size:.78rem;margin-bottom:3px}.detail-line span{white-space:pre-wrap;overflow-wrap:anywhere;color:#66768b;font-size:.86rem}.media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.media-tile{display:flex;flex-direction:column;gap:5px;text-decoration:none;color:#3d5777;font-size:.72rem;min-width:0}.media-tile img,.media-tile video,.media-placeholder{width:100%;aspect-ratio:1.25;object-fit:cover;border-radius:10px;background:#eaf0fa;display:grid;place-items:center;font-size:1.6rem}.media-tile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.empty-state{grid-column:1/-1;text-align:center;padding:70px 20px;border:1px dashed #b8c8e3;border-radius:20px;background:#ffffffa8}.empty-state .empty-icon{font-size:2.8rem}.empty-state h3{font-size:1.5rem;margin:12px 0 5px}#progressOutcomes{margin-top:20px}@media(max-width:760px){.topbar{padding:17px 20px;align-items:flex-start;flex-direction:column}.dashboard,#experienceList,#projectList{grid-template-columns:1fr}main{margin:25px auto;padding:0 16px 70px}.section-heading{align-items:flex-start;flex-direction:column}form.card{padding:22px}.account-bar{width:100%}.portfolio-cover{height:108px}}@media(prefers-reduced-motion:reduce){button{transition:none}}
       .auth-shell{max-width:480px;margin:5vh auto;padding:28px} .auth-shell input{width:100%;box-sizing:border-box;margin:7px 0 14px} .auth-shell button{margin:5px 5px 5px 0} .account-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap} .sync-status{font-size:.88rem;opacity:.85} .auth-error{color:#ff9b9b} .auth-success{color:#8df1d5} .auth-shell[hidden], #appShell[hidden]{display:none!important} .auth-shell label{display:block} 
-    </style>
+    
+/* Refined portfolio experience detail layout */
+.cas-tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0;border-bottom:1px solid #e4eaf4;scrollbar-width:thin}
+.cas-tab{background:transparent!important;color:#64748b!important;border-radius:9px;padding:9px 11px;white-space:nowrap;font-size:.8rem;box-shadow:none!important}
+.cas-tab.active{background:#eaf0ff!important;color:#204fba!important}
+.cas-tab-panel{padding:12px 2px 4px;min-height:80px}
+.cas-tab-panel .detail-line{padding:12px 0}
+.cas-tab-panel .detail-line span{font-size:.92rem;color:#34445c;line-height:1.6}
+.portfolio-details{background:#fbfcff;border:1px solid #e6ebf4;border-radius:14px;padding:12px;margin-top:16px}
+.portfolio-details summary{padding:4px 2px}
+.portfolio-card{transition:transform .2s,box-shadow .2s}
+.portfolio-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px #253c6520}
+@media(prefers-reduced-motion:reduce){.portfolio-card{transition:none}}
+</style>
 </head>
 <body>
 <section id="authShell" class="auth-shell card">
@@ -578,59 +594,57 @@ function makeButton(label, handler) {
     return button;
 }
 
-function renderExperiences() {
-    experienceList.replaceChildren();
-
-    if (!experiences.length) {
-        addText(experienceList, "Experiences", "No experiences yet. Select + Add Experience to begin.");
-        return;
-    }
-
-    experiences.forEach((experience, index) => {
-        const card = document.createElement("article");
-        card.className = "card experience-card";
-
-        const heading = document.createElement("h3");
-        heading.textContent = experience.name || "Untitled Experience";
-        card.appendChild(heading);
-
-        const labels = {
-            date: "Date",
-            description: "Description",
-            goals: "Goals",
-            impact: "Impact",
-            budget: "Budget",
-            activityType: "Activity Type",
-            eventType: "Event Type",
-            teamMembers: "Team Members",
-            startDate: "Start Date",
-            finishDate: "Tentative Finish Date",
-            hoursPerWeek: "Hours per Week",
-            location: "Location",
-            organization: "Community Organization",
-            organizationContact: "Organization Contact",
-            materials: "Materials / Equipment / Facilities"
-        };
-
-        for (const field of experienceFields) {
-            addText(card, labels[field] || field.replace(/([A-Z])/g," $1"), experience[field]);
-        }
-
-        addText(card, "CAS Strands", (experience.strands || []).join(", "));
-        addText(card, "Learning Outcomes", (experience.learningOutcomes || []).join(", "));
-
-        card.appendChild(makeButton("Edit", () => editExperience(index)));
-
-        card.appendChild(makeButton("Delete", async () => {
-            if (!confirm("Delete this experience permanently?")) return;
-            if (await withCloud(() => deleteRecord("experience", index))) hideForm();
-        }));
-
-        experienceList.appendChild(card);
-        addMediaList(card,experience);
-    });
+function detailLabel(key){return key.replace(/^project/, "").replace(/([A-Z])/g," $1").replace(/^./,m=>m.toUpperCase());}
+function renderPortfolioCard(type,record,index){
+ const project=type==="project"; const card=document.createElement("article");card.className="card portfolio-card";
+ const cover=document.createElement("div");cover.className="portfolio-cover"+(project?" project":"");
+ const kind=document.createElement("span");kind.className="portfolio-type";kind.textContent=project?"CAS Project":"CAS Experience";cover.append(kind);
+ const date=document.createElement("span");date.className="portfolio-date";date.textContent=(project?record.projectStart||record.projectDate:record.startDate||record.date)||"Date not set";cover.append(date);card.append(cover);
+ const body=document.createElement("div");body.className="portfolio-body";card.append(body);
+ const title=document.createElement("h3");title.textContent=(project?record.projectName:record.name)||"Untitled";body.append(title);
+ const summary=document.createElement("p");summary.className="portfolio-summary";summary.textContent=(project?record.projectDescription:record.description)||"Add a description to tell the story of this CAS experience.";body.append(summary);
+ const pills=document.createElement("div");pills.className="pill-row";
+ for(const strand of record.strands||[]){const tag=document.createElement("span");tag.className="pill "+strand.toLowerCase();tag.textContent=strand;pills.append(tag)}
+ for(const lo of record.learningOutcomes||[]){const tag=document.createElement("span");tag.className="pill";tag.textContent=lo;pills.append(tag)}body.append(pills);
+ const meta=document.createElement("div");meta.className="portfolio-meta";
+ const hours=project?record.projectHours:record.hoursPerWeek;const count=(record.media||[]).length;
+ meta.textContent=[hours?hours+" hrs/week":null,count+" attachment"+(count===1?"":"s")].filter(Boolean).join("  ·  ");body.append(meta);
+ const actions=document.createElement("div");actions.className="portfolio-actions";
+ const edit=makeButton("✎ Edit & add evidence",()=>project?openProjectForm(index):editExperience(index));actions.append(edit);
+ const del=makeButton("Delete",async()=>{if(!confirm("Permanently delete this record? Existing uploaded files may remain in storage."))return;if(await withCloud(()=>deleteRecord(type,index)))project?closeProjectForm():hideForm()});del.classList.add("danger");actions.append(del);body.append(actions);
+ const details=document.createElement("details");details.className="portfolio-details";const label=document.createElement("summary");label.textContent="View all CASMAP information";details.append(label);
+ const keys=project?projectFields.slice(1):experienceFields.filter(k=>k!=="name");
+ for(const key of keys){const value=record[key];if(!value)continue;const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const content=document.createElement("span");content.textContent=value;line.append(heading,content);details.append(line)}
+ 
+ const tabBar=document.createElement("div");tabBar.className="cas-tabs";
+ const panel=document.createElement("div");panel.className="cas-tab-panel";
+ const groups=project?[
+  ["Overview",["projectDescription","projectGoals","projectImpact","projectDate","projectStart","projectFinish","projectHours","projectTeam"]],
+  ["Planning",["projectSupervisor","projectRisks","projectBudget","projectOrganization","projectInvestigation","projectPreparation","projectAction","projectApproval"]],
+  ["Reflections",["projectReflection"]],
+  ["Evidence",["projectEvidence"]]
+ ]:[
+  ["Overview",["description","goals","impact","date","startDate","finishDate","hoursPerWeek","teamMembers","location"]],
+  ["Planning",["supervisor","riskAssessment","budget","fundraising","activityType","eventType","organization","organizationContact","materials","schoolApproval","investigation","preparation","action","demonstration"]],
+  ["Reflections",["reflectionBefore","reflectionAfter"]],
+  ["Evidence",["evidenceLinks","referenceImage"]]
+ ];
+ const display=(selected)=>{
+  panel.replaceChildren();
+  for(const [name,keys] of groups){if(name!==selected)continue;
+   const present=keys.filter(key=>String(record[key]??"").trim());
+   if(!present.length&&selected!=="Evidence"){
+    const empty=document.createElement("p");empty.className="muted";empty.textContent="No information recorded yet. Choose Edit to add it.";panel.append(empty);
+   }
+   for(const key of present){const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const value=document.createElement("span");value.textContent=record[key];line.append(heading,value);panel.append(line)}
+   if(selected==="Evidence")addMediaList(panel,record);
+  }
+  for(const b of tabBar.children){const active=b.textContent===selected;b.classList.toggle("active",active);b.setAttribute("aria-selected",String(active))}
+ };
+ for(const [name] of groups){const b=document.createElement("button");b.type="button";b.className="cas-tab";b.textContent=name;b.setAttribute("role","tab");b.addEventListener("click",()=>display(name));tabBar.append(b)}
+ details.replaceChildren(label,tabBar,panel);details.addEventListener("toggle",()=>{if(details.open)display("Overview")});body.append(details);return card;
 }
-
+function renderExperiences(){experienceList.replaceChildren();if(!experiences.length){experienceList.innerHTML='<div class="empty-state"><div class="empty-icon">✦</div><h3>Your CAS journey starts here</h3><p class="muted">Create your first experience and document your growth.</p></div>';return}experiences.forEach((item,i)=>experienceList.append(renderPortfolioCard("experience",item,i)))}
 // Evidence files are stored in a PRIVATE Supabase Storage bucket, not in HTML or public URLs.
 const MEDIA_BUCKET = "cas-evidence";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -641,7 +655,7 @@ async function saveWithMedia(type, index, content, fileInputId) {
   for (const file of files) if (file.size > MAX_FILE_BYTES) throw new Error(file.name + " exceeds 25 MB. Compress it or use an external evidence link.");
   const old = index === null ? null : (type === "experience" ? experiences[index] : projects[index]);
   content.media = [...(old?.media || [])];
-  const id = index === null ? await insertRecord(type, content) : await updateRecord(type,index,content);
+  const id = index === null ? await insertRecord(type, content) : (await updateRecord(type,index,content),cloudRows[type][index].id);
   for (const file of files) {
     const path = `${currentUser.id}/${id}/${crypto.randomUUID()}_${safeFileName(file.name)}`;
     const {error} = await cloud.storage.from(MEDIA_BUCKET).upload(path,file,{upsert:false,contentType:file.type || "application/octet-stream"});
@@ -651,17 +665,21 @@ async function saveWithMedia(type, index, content, fileInputId) {
     if (saveError) throw saveError;
   }
 }
-async function addMediaList(card,record) {
-  if (!record.media?.length) return;
-  const heading=document.createElement("h4"); heading.textContent="Evidence & reflection attachments";card.appendChild(heading);
-  for (const file of record.media) {
-    const line=document.createElement("p");
-    const link=document.createElement("a"); link.textContent=file.name; link.target="_blank"; link.rel="noopener noreferrer";
-    const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(file.path,3600);
-    if (!error && data?.signedUrl) link.href=data.signedUrl;
-    else {link.textContent=file.name+" (unavailable: check Storage policies)";}
-    line.appendChild(link);card.appendChild(line);
-  }
+async function addMediaList(container,record){
+ if(!record.media?.length)return;
+ const heading=document.createElement("h4");heading.textContent="Photos, videos & evidence";container.append(heading);
+ const grid=document.createElement("div");grid.className="media-grid";container.append(grid);
+ for(const file of record.media){
+  const tile=document.createElement("a");tile.className="media-tile";tile.target="_blank";tile.rel="noopener noreferrer";
+  const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(file.path,3600);
+  const url=!error&&data?.signedUrl?data.signedUrl:null;
+  if(url)tile.href=url;
+  let preview;
+  if(url&&file.type?.startsWith("image/")){preview=document.createElement("img");preview.src=url;preview.loading="lazy";preview.alt=file.name}
+  else if(url&&file.type?.startsWith("video/")){preview=document.createElement("video");preview.src=url;preview.preload="metadata";preview.muted=true}
+  else{preview=document.createElement("div");preview.className="media-placeholder";preview.textContent=file.type?.startsWith("video/")?"▶":"📄"}
+  const name=document.createElement("span");name.textContent=file.name+(url?"":" (unavailable)");tile.append(preview,name);grid.append(tile);
+ }
 }
 
 experienceForm.addEventListener("submit", async function(event) {
@@ -717,40 +735,7 @@ function closeProjectForm() {
     projectForm.hidden = true;
 }
 
-function renderProjects() {
-    projectList.replaceChildren();
-
-    if (!projects.length) {
-        addText(projectList, "Projects", "No projects yet. Select + Add Project to begin.");
-        return;
-    }
-
-    projects.forEach((project, index) => {
-        const card = document.createElement("article");
-        card.className = "card";
-
-        const title = document.createElement("h3");
-        title.textContent = project.projectName || "Untitled Project";
-        card.appendChild(title);
-
-        for (const field of projectFields.slice(1)) {
-            addText(card, field.replace(/^project/, ""), project[field]);
-        }
-
-        addText(card, "CAS Strands", (project.strands || []).join(", "));
-        addText(card, "Learning Outcomes", (project.learningOutcomes || []).join(", "));
-
-        card.appendChild(makeButton("Edit", () => openProjectForm(index)));
-
-        card.appendChild(makeButton("Delete", async () => {
-            if (!confirm("Delete this project permanently?")) return;
-            if (await withCloud(() => deleteRecord("project", index))) closeProjectForm();
-        }));
-
-        projectList.appendChild(card);
-        addMediaList(card,project);
-    });
-}
+function renderProjects(){projectList.replaceChildren();if(!projects.length){projectList.innerHTML='<div class="empty-state"><div class="empty-icon">✦</div><h3>Build something meaningful</h3><p class="muted">Add a collaborative CAS project to begin.</p></div>';return}projects.forEach((item,i)=>projectList.append(renderPortfolioCard("project",item,i)))}
 
 projectForm.addEventListener("submit", async function(event) {
     event.preventDefault();
