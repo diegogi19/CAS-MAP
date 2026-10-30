@@ -7,6 +7,9 @@
     <title>CAS Portfolio</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
     <style>
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
@@ -77,6 +80,84 @@ body[data-accent="violet"]{--personal-accent:#7354bd}
 body[data-accent="blue"]{--personal-accent:#235ad4}
 body[data-accent] button:not(.secondary):not(.text-button):not(.media-remove):not(.cas-tab){background:var(--personal-accent)}
 body[data-accent] .portfolio-cover:not(.project){background:linear-gradient(120deg,var(--personal-accent),#93b9df)}
+
+/* Premium editorial visual system */
+:root{--premium-accent:#245ad2;--premium-bg:#f6f7fa;--premium-ink:#172238;--premium-muted:#69778d;--premium-line:#e8ecf2}
+body{background:var(--premium-bg);color:var(--premium-ink)}
+.topbar{background:#ffffffed;backdrop-filter:blur(18px);border-bottom:1px solid var(--premium-line);padding-top:17px;padding-bottom:17px}
+.topbar h1{font-size:1.25rem;letter-spacing:-.05em}
+main{max-width:1220px;margin-top:48px}
+h2{font-size:clamp(2rem,4vw,3.2rem);letter-spacing:-.065em;font-weight:800}
+.card{border:1px solid #e9edf3;border-radius:18px;box-shadow:0 3px 6px #172a4905,0 18px 45px #172a4907}
+.dashboard{gap:18px}
+.dashboard .card{min-height:205px;padding:28px}
+.dashboard .card h3{font-size:1.28rem}
+.dashboard .card:hover{border-color:#d6e0f2;transform:translateY(-2px);transition:.2s}
+button{border-radius:10px;background:var(--premium-accent);box-shadow:none;font-weight:700;letter-spacing:-.01em}
+button:hover{box-shadow:0 7px 20px #183a8118}
+button.secondary{background:#f0f3f8}
+.portfolio-card{border-radius:17px;box-shadow:0 6px 25px #1c2e4c09;transition:box-shadow .2s ease}
+.portfolio-card:hover{box-shadow:0 14px 40px #1c2e4c14;transform:none}
+.portfolio-cover{height:78px;background:#f2f5fb;border-bottom:1px solid #e6ebf3}
+.portfolio-cover.project{background:#eef6f5}
+.portfolio-body{padding:25px}
+.portfolio-body h3{font-size:1.32rem;letter-spacing:-.045em}
+.portfolio-summary{color:#64748b}
+.portfolio-type{font-size:.67rem;letter-spacing:.11em}
+.pill{font-weight:600;letter-spacing:.01em}
+form.card{max-width:990px;border-radius:20px;padding:clamp(22px,4vw,44px)}
+form.card h3{font-size:1.8rem;letter-spacing:-.055em}
+form label{font-size:.82rem;color:#33455f;margin-top:22px}
+input:not([type=checkbox]),textarea,select{background:#fff;border:1px solid #dfe5ed;border-radius:10px}
+input:focus,textarea:focus,select:focus{border-color:#789fea}
+.personalize-bar{background:#fff;border:1px solid #e6ebf3;border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:12px}
+.personalize-bar label{font-size:.8rem;font-weight:700;color:#64748b}
+.personalize-bar select{background:#f8fafc}
+.rich-wrap{margin:7px 0 18px;border:1px solid #dfe5ed;border-radius:12px;overflow:hidden;background:white;transition:border-color .15s,box-shadow .15s}
+.rich-wrap:focus-within{border-color:#86a6e8;box-shadow:0 0 0 3px #2a60d013}
+.rich-wrap .ql-toolbar.ql-snow{border:0;border-bottom:1px solid #e8edf4;background:#f9fafc;padding:9px 11px;display:flex;flex-wrap:wrap;align-items:center;gap:3px}
+.rich-wrap .ql-container.ql-snow{border:0;font:inherit;font-size:.94rem}
+.rich-wrap .ql-editor{min-height:150px;max-height:390px;overflow-y:auto;line-height:1.72;color:#27354a;padding:17px 19px}
+.rich-wrap .ql-editor.ql-blank:before{color:#9aa7b9;font-style:normal}
+.rich-wrap .ql-editor ul,.rich-wrap .ql-editor ol{padding-left:1.65em}
+.rich-wrap .ql-editor li{padding-left:.35em}
+.rich-wrap .ql-toolbar button{border-radius:6px!important;background:transparent!important;box-shadow:none!important;padding:3px!important}
+.rich-wrap .ql-toolbar button:hover,.rich-wrap .ql-toolbar button.ql-active{background:#e7eefb!important}
+.rich-wrap .ql-toolbar .ql-picker{color:#46566f}
+.rich-wrap .ql-toolbar .ql-picker-options{z-index:20}
+.rich-wrap .ql-editor h1{font-size:1.65rem}
+.rich-wrap .ql-editor h2{font-size:1.3rem}
+.rich-wrap .ql-editor h3{font-size:1.08rem}
+.rich-wrap .ql-editor p{margin:0 0 7px}
+.rich-wrap .ql-editor a{color:#245ad2;text-decoration:underline}
+.rich-caption{font-size:.72rem;color:#8794a6;margin-top:-12px;margin-bottom:16px}
+.rich-render{font-size:.92rem;line-height:1.75;color:#34445c;overflow-wrap:anywhere}
+.rich-render p{margin:0 0 9px}
+.rich-render p:last-child{margin-bottom:0}
+.rich-render ul,.rich-render ol{padding-left:24px;margin:8px 0}
+.rich-render li{padding-left:4px;margin:4px 0}
+.rich-render strong{font-weight:750}
+.rich-render h1,.rich-render h2,.rich-render h3{margin:12px 0 8px;letter-spacing:-.03em}
+.rich-render h1{font-size:1.5rem}.rich-render h2{font-size:1.2rem}.rich-render h3{font-size:1.03rem}
+.rich-render a{color:#245ad2;text-decoration:underline}
+.rich-render blockquote{border-left:3px solid #b5c8e8;padding-left:12px;margin:10px 0;color:#64748b}
+.rich-render .ql-font-serif{font-family:Georgia,serif}.rich-render .ql-font-monospace{font-family:monospace}.rich-render .ql-size-small{font-size:.8em}.rich-render .ql-size-large{font-size:1.35em}.rich-render .ql-size-huge{font-size:1.8em}
+.rich-render .ql-align-center{text-align:center}
+.rich-render .ql-align-right{text-align:right}
+.rich-render .ql-align-justify{text-align:justify}
+.rich-render .ql-indent-1{padding-left:2em}
+.rich-render .ql-indent-2{padding-left:4em}
+.detail-line .rich-render{white-space:normal;display:block}
+.media-remove{border-radius:8px}
+.paste-zone{background:#fafbfe;border-color:#c6d3e6}
+.paste-zone:hover{background:#f3f7ff}
+body[data-font="serif"] .ql-editor,body[data-font="serif"] .rich-render{font-family:Georgia,serif}
+body[data-font="mono"] .ql-editor,body[data-font="mono"] .rich-render{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+body[data-font="rounded"] .ql-editor,body[data-font="rounded"] .rich-render{font-family:"Trebuchet MS",Arial,sans-serif}
+body[data-accent="teal"]{--premium-accent:#087f83}
+body[data-accent="violet"]{--premium-accent:#7354bd}
+body[data-accent="blue"]{--premium-accent:#245ad2}
+@media(max-width:760px){main{margin-top:25px}.personalize-bar{gap:8px}.rich-wrap .ql-toolbar.ql-snow{gap:0}.portfolio-body{padding:18px}}
 </style>
 </head>
 <body>
@@ -598,7 +679,7 @@ function showPage(page) {
 
 function showForm() { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;
     editingIndex = null;
-    experienceForm.reset();
+    experienceForm.reset();syncEditorsFromFields(experienceForm);
     document.getElementById("experienceFormTitle").textContent = "New Experience";
     experienceForm.hidden = false;
     document.getElementById("name").focus();
@@ -607,7 +688,7 @@ function showForm() { pendingInspiration.experience=null;document.getElementById
 
 function hideForm() {
     editingIndex = null;
-    experienceForm.reset();
+    experienceForm.reset();syncEditorsFromFields(experienceForm);
     experienceForm.hidden = true;
 }
 
@@ -642,6 +723,7 @@ function editExperience(index) { pendingInspiration.experience=null;document.get
         document.getElementById(field).value = experience[field] ?? "";
     }
 
+    syncEditorsFromFields(experienceForm);
     restoreChecks(experienceForm, "strands", experience.strands);
     restoreChecks(experienceForm, "learningOutcomes", experience.learningOutcomes);
 
@@ -675,7 +757,7 @@ function renderPortfolioCard(type,record,index){
  const date=document.createElement("span");date.className="portfolio-date";date.textContent=(project?record.projectStart||record.projectDate:record.startDate||record.date)||"Date not set";cover.append(date);card.append(cover);
  const body=document.createElement("div");body.className="portfolio-body";card.append(body);
  const title=document.createElement("h3");title.textContent=(project?record.projectName:record.name)||"Untitled";body.append(title);
- const summary=document.createElement("p");summary.className="portfolio-summary";summary.textContent=(project?record.projectDescription:record.description)||"Add a description to tell the story of this CAS experience.";body.append(summary);
+ const summary=document.createElement("p");summary.className="portfolio-summary";summary.textContent=plainTextOf(project?record.projectDescription:record.description)||"Add a description to tell the story of this CAS experience.";body.append(summary);
  const pills=document.createElement("div");pills.className="pill-row";
  for(const strand of record.strands||[]){const tag=document.createElement("span");tag.className="pill "+strand.toLowerCase();tag.textContent=strand;pills.append(tag)}
  for(const lo of record.learningOutcomes||[]){const tag=document.createElement("span");tag.className="pill";tag.textContent=lo;pills.append(tag)}body.append(pills);
@@ -722,7 +804,7 @@ function renderPortfolioCard(type,record,index){
  const del=makeButton("Delete",async()=>{if(!confirm("Permanently delete this record? Existing uploaded files may remain in storage."))return;if(await withCloud(()=>deleteRecord(type,index)))project?closeProjectForm():hideForm()});del.classList.add("danger");actions.append(del);body.append(actions);
  const details=document.createElement("details");details.className="portfolio-details";const label=document.createElement("summary");label.textContent="View all CASMAP information";details.append(label);
  const keys=project?projectFields.slice(1):experienceFields.filter(k=>k!=="name");
- for(const key of keys){const value=record[key];if(!value)continue;const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const content=document.createElement("span");content.textContent=value;line.append(heading,content);details.append(line)}
+ for(const key of keys){const value=record[key];if(!value)continue;const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const content=document.createElement("span");line.append(heading,richNode(value));details.append(line)}
  
  const tabBar=document.createElement("div");tabBar.className="cas-tabs";
  const panel=document.createElement("div");panel.className="cas-tab-panel";
@@ -744,7 +826,7 @@ function renderPortfolioCard(type,record,index){
    if(!present.length&&selected!=="Evidence"){
     const empty=document.createElement("p");empty.className="muted";empty.textContent="No information recorded yet. Choose Edit to add it.";panel.append(empty);
    }
-   for(const key of present){const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);const value=document.createElement("span");value.textContent=record[key];line.append(heading,value);panel.append(line)}
+   for(const key of present){const line=document.createElement("div");line.className="detail-line";const heading=document.createElement("strong");heading.textContent=detailLabel(key);line.append(heading,richNode(record[key]));panel.append(line)}
    if(selected==="Evidence")addMediaList(panel,record,type,index);
   }
   for(const b of tabBar.children){const active=b.textContent===selected;b.classList.toggle("active",active);b.setAttribute("aria-selected",String(active))}
@@ -828,29 +910,79 @@ async function saveWithMedia(type,index,content,fileInputId){
  if(failures.length)alert("Your experience text was saved, but some attachments failed:\n"+failures.join("\n"));
  else pendingInspiration[type]=null;
 }
-// Lightweight writing toolbar: plain-text Markdown syntax remains portable in Supabase.
+// Full WYSIWYG editor: formatting is visible while typing, and is saved with each record.
+// HTML is marked to distinguish it from legacy plain-text entries.
+const RICH_PREFIX="CAS_RICH_HTML_V1:";
+const richEditors=new Map();
+const richIds=new Set([...document.querySelectorAll("#experienceForm textarea,#projectForm textarea")].map(el=>el.id));
+function escapeRichText(text){
+ const div=document.createElement("div");div.textContent=String(text||"");
+ return div.innerHTML.replace(/\n/g,"<br>");
+}
+function safeRichHTML(html){
+ if(typeof DOMPurify==="undefined")return escapeRichText(html);
+ return DOMPurify.sanitize(html,{ALLOWED_TAGS:["p","br","strong","b","em","i","u","s","h1","h2","h3","ul","ol","li","blockquote","a","span","div"],ALLOWED_ATTR:["href","target","rel","class","style"],FORBID_TAGS:["img","video","iframe","script","svg","math","form","input"],FORBID_ATTR:["onerror","onclick","onload"]});
+}
+function plainTextOf(value){
+ if(!value)return"";
+ if(!String(value).startsWith(RICH_PREFIX))return String(value);
+ const temp=document.createElement("div");
+ temp.innerHTML=safeRichHTML(String(value).slice(RICH_PREFIX.length));
+ return temp.textContent||"";
+}
+function richNode(value){
+ const node=document.createElement("div");node.className="rich-render";
+ if(String(value||"").startsWith(RICH_PREFIX))node.innerHTML=safeRichHTML(String(value).slice(RICH_PREFIX.length));
+ else node.textContent=value||"";
+ return node;
+}
+function editorLoad(id){
+ const editor=richEditors.get(id),field=document.getElementById(id);
+ if(!editor||!field)return;
+ const raw=field.value||"";
+ const html=raw.startsWith(RICH_PREFIX)?safeRichHTML(raw.slice(RICH_PREFIX.length)):escapeRichText(raw);
+ editor.clipboard.dangerouslyPasteHTML(html,"silent");
+ editor.history.clear();
+}
+function syncEditorsFromFields(form){
+ for(const area of form.querySelectorAll("textarea"))editorLoad(area.id);
+}
+function syncFieldsFromEditors(form){
+ for(const area of form.querySelectorAll("textarea")){
+  const editor=richEditors.get(area.id);if(!editor)continue;
+  const text=editor.getText().trim();
+  area.value=text?RICH_PREFIX+safeRichHTML(editor.root.innerHTML):"";
+ }
+}
 function setupWritingTools(){
  const fields=document.querySelectorAll("#experienceForm textarea,#projectForm textarea");
- for(const area of fields){
-  const tools=document.createElement("div");tools.className="writing-tools";
-  tools.setAttribute("role","toolbar");tools.setAttribute("aria-label","Formatting tools for "+(area.id||"text"));
-  const commands=[
-   ["• Bullets","bullet"],["1. Numbered","number"],["B Bold","bold"],["I Italic","italic"],["H Heading","heading"]
-  ];
-  for(const [label,kind] of commands){
-   const btn=document.createElement("button");btn.type="button";btn.textContent=label;
-   btn.addEventListener("click",()=>{
-    const a=area.selectionStart,b=area.selectionEnd,selected=area.value.slice(a,b);
-    let value=selected;
-    if(kind==="bullet")value=(selected||"List item").split("\\n").map(line=>"- "+line.replace(/^[-*] /,"")).join("\\n");
-    if(kind==="number")value=(selected||"List item").split("\\n").map((line,i)=>(i+1)+". "+line).join("\\n");
-    if(kind==="bold")value="**"+(selected||"bold text")+"**";
-    if(kind==="italic")value="*"+(selected||"italic text")+"*";
-    if(kind==="heading")value="## "+(selected||"Heading");
-    area.setRangeText(value,a,b,"select");area.dispatchEvent(new Event("input",{bubbles:true}));area.focus();
-   });tools.append(btn);
+ if(typeof Quill!=="undefined"){
+  for(const area of fields){
+   const shell=document.createElement("div");shell.className="rich-wrap";
+   const toolbar=document.createElement("div");toolbar.className="rich-toolbar";
+   toolbar.innerHTML=`
+    <span class="ql-formats"><select class="ql-font" aria-label="Font"><option selected></option><option value="serif">Serif</option><option value="monospace">Mono</option></select><select class="ql-size" aria-label="Font size"><option value="small">Small</option><option selected>Normal</option><option value="large">Large</option><option value="huge">Huge</option></select><select class="ql-header" aria-label="Text style"><option selected></option><option value="1">Heading 1</option><option value="2">Heading 2</option><option value="3">Heading 3</option></select></span>
+    <span class="ql-formats"><button class="ql-bold" aria-label="Bold"></button><button class="ql-italic" aria-label="Italic"></button><button class="ql-underline" aria-label="Underline"></button><button class="ql-strike" aria-label="Strikethrough"></button></span>
+    <span class="ql-formats"><button class="ql-list" value="ordered" aria-label="Numbered list"></button><button class="ql-list" value="bullet" aria-label="Bulleted list"></button></span>
+    <span class="ql-formats"><button class="ql-blockquote" aria-label="Quote"></button><select class="ql-align" aria-label="Text alignment"></select></span>
+    <span class="ql-formats"><select class="ql-color" aria-label="Text color"></select><button class="ql-link" aria-label="Insert link"></button><button class="ql-clean" aria-label="Clear formatting"></button></span>`;
+   const surface=document.createElement("div");surface.className="rich-surface";
+   shell.append(toolbar,surface);
+   area.before(shell);
+   area.hidden=true;
+   const quill=new Quill(surface,{theme:"snow",modules:{toolbar:toolbar,history:{delay:500,maxStack:100,userOnly:true}},placeholder:"Write your reflection, plans, or notes…"});
+   richEditors.set(area.id,quill);
+   quill.on("text-change",()=>{
+    const text=quill.getText().trim();
+    area.value=text?RICH_PREFIX+safeRichHTML(quill.root.innerHTML):"";
+    area.dispatchEvent(new Event("input",{bubbles:true}));
+   });
+   editorLoad(area.id);
   }
-  area.before(tools);
+ }else{
+  // Preserve fully editable textareas if the editor CDN is unavailable.
+  console.warn("Rich text editor unavailable; using plain-text fallback.");
+  for(const area of fields){area.placeholder="Editor could not load. You can still type and save plain text."}
  }
  const font=document.getElementById("portfolioFont"),accent=document.getElementById("portfolioAccent");
  const allowedFonts=["default","serif","rounded","mono"],allowedAccents=["blue","teal","violet"];
@@ -905,6 +1037,7 @@ async function addMediaList(container,record,type,index){
 experienceForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
+    syncFieldsFromEditors(experienceForm);
     const experience = {};
 
     for (const field of experienceFields) {
@@ -942,6 +1075,7 @@ function openProjectForm(index = null) { pendingInspiration.project=null;documen
         restoreChecks(projectForm, "projectOutcomes", project.learningOutcomes);
     }
 
+    syncEditorsFromFields(projectForm);
     document.getElementById("projectFormTitle").textContent =
         project ? "Edit Project" : "New Project";
 
@@ -952,7 +1086,7 @@ function openProjectForm(index = null) { pendingInspiration.project=null;documen
 
 function closeProjectForm() {
     editingProjectIndex = null;
-    projectForm.reset();
+    projectForm.reset();syncEditorsFromFields(projectForm);
     projectForm.hidden = true;
 }
 
@@ -961,6 +1095,7 @@ function renderProjects(){projectList.replaceChildren();if(!projects.length){pro
 projectForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
+    syncFieldsFromEditors(projectForm);
     const project = {};
 
     for (const field of projectFields) {
@@ -1047,6 +1182,7 @@ function restoreDraft(type,id){
  const form=type==="experience"?experienceForm:projectForm;
  for(const key of type==="experience"?experienceFields:projectFields)if(typeof draft[key]==="string")document.getElementById(key).value=draft[key];
  for(const [group,values] of Object.entries(draft.__checks||{}))restoreChecks(form,group,values);
+ syncEditorsFromFields(form);
 }
 function clearDraft(type,id){try{localStorage.removeItem(draftKey(type,id))}catch(e){}}
 experienceForm.addEventListener("input",()=>saveDraft("experience"));
