@@ -82,7 +82,6 @@ footer{color:#8290a5;font-size:.77rem;margin-top:45px}
 <script>
 "use strict";
 const SUPABASE_URL="https://ltessdscljvbjgkgpjnr.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_CwbdE0KVA2ES3aTVq_GI8A_fPmzy3ks";
 const ENDPOINT=SUPABASE_URL+"/functions/v1/teacher-view";
 const status=document.getElementById("status");
 const portfolio=document.getElementById("portfolio");
@@ -169,7 +168,7 @@ async function load(){
  status.hidden=false;status.textContent="Refreshing shared portfolio…";
  portfolio.hidden=true;
  try{
-  const response=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY,"apikey":SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({token}),cache:"no-store"});
+  const response=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token}),cache:"no-store"});
   const data=await response.json();
   if(!response.ok)throw new Error(data.error||"Could not load the shared portfolio");
   records=Array.isArray(data.records)?data.records:[];
@@ -189,7 +188,7 @@ $("refresh").addEventListener("click",load);
 $("print").addEventListener("click",()=>window.print());
 const params=new URLSearchParams(location.hash.slice(1));
 token=params.get("access")||"";
-if(!/^[a-f0-9]{64}$/.test(token))status.textContent="This link is missing or invalid. Ask the student to generate a Teacher View link.";
+if(!/^(?:[a-f0-9]{20}|[a-f0-9]{64})$/.test(token))status.textContent="This link is missing or invalid. Ask the student to generate a Teacher View link.";
 else load();
 </script>
 </body>
