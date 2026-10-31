@@ -273,6 +273,15 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
 .student-profile-header button{padding:6px 11px}
 #studentProfileMessage{min-height:1.3em;font-size:.84rem}
 #studentProfileButton{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.series-dates-panel{background:var(--hover-surface,#f3f6fb);border:1px solid var(--line,#dce5f1);border-radius:16px;padding:20px;margin:15px 0}
+.series-dates-panel[hidden]{display:none!important}
+.series-dates-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.series-dates-heading strong{font-size:1rem;color:var(--ink,#182638)}
+.series-dates-heading p,.series-dates-hint{font-size:.8rem;color:var(--muted-ink,#728098);margin:5px 0}
+.series-dates-list{display:grid;gap:9px;margin:14px 0}
+.series-date-row{display:flex;align-items:center;gap:9px}
+.series-date-row input{max-width:280px;flex:1;min-width:0}
+.series-date-remove{padding:9px 12px!important;font-size:.78rem!important}
 </style>
 </head>
 <body>
@@ -391,6 +400,12 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
                 <option>Series of Events</option>
                 <option>Single Event</option>
             </select>
+
+            <section id="seriesDatesSection" class="series-dates-panel" hidden aria-label="Individual event dates">
+              <div class="series-dates-heading"><div><strong>Individual event dates</strong><p>Add every session date in this experience. No limit.</p></div><button type="button" id="addSeriesDate" class="secondary">+ Add date</button></div>
+              <div id="seriesDatesList" class="series-dates-list"></div>
+              <p class="series-dates-hint">Dates are saved with this experience and visible to your teacher.</p>
+            </section>
 
             <label for="teamMembers">Team Members' Names</label>
             <input id="teamMembers" type="text"
@@ -843,9 +858,30 @@ function showPage(page) {
     if (page === "progress") renderProgress();
 }
 
+// Unlimited session dates for Series of Events (saved in existing JSON content).
+const seriesDatesSection=document.getElementById("seriesDatesSection");
+const seriesDatesList=document.getElementById("seriesDatesList");
+function seriesDateValues(){return [...seriesDatesList.querySelectorAll('input[type="date"]')].map(el=>el.value).filter(Boolean)}
+function addSeriesDateRow(value=""){
+ const row=document.createElement("div");row.className="series-date-row";
+ const input=document.createElement("input");input.type="date";input.value=value;input.setAttribute("aria-label","Event session date");
+ const remove=document.createElement("button");remove.type="button";remove.className="secondary series-date-remove";remove.textContent="Remove";
+ remove.addEventListener("click",()=>{row.remove();saveDraft("experience")});
+ input.addEventListener("input",()=>saveDraft("experience"));
+ row.append(input,remove);seriesDatesList.append(row);return input;
+}
+function setSeriesDates(values=[]){seriesDatesList.replaceChildren();for(const value of values)if(/^\d{4}-\d{2}-\d{2}$/.test(value))addSeriesDateRow(value);}
+function syncSeriesDatesVisibility(){
+ const enabled=document.getElementById("eventType").value==="Series of Events";
+ seriesDatesSection.hidden=!enabled;
+ if(enabled&&!seriesDatesList.children.length)addSeriesDateRow();
+}
+document.getElementById("eventType").addEventListener("change",syncSeriesDatesVisibility);
+document.getElementById("addSeriesDate").addEventListener("click",()=>{const input=addSeriesDateRow();input.focus();saveDraft("experience")});
+
 function showForm() { pendingInspiration.experience=null;document.getElementById("experienceInspirationPreview").hidden=true;document.getElementById("experienceClearInspiration").hidden=true;
     editingIndex = null;
-    experienceForm.reset();syncEditorsFromFields(experienceForm);
+    experienceForm.reset();setSeriesDates();syncSeriesDatesVisibility();syncEditorsFromFields(experienceForm);
     document.getElementById("experienceFormTitle").textContent = "New Experience";
     experienceForm.hidden = false;
     document.getElementById("name").focus();
@@ -854,7 +890,7 @@ function showForm() { pendingInspiration.experience=null;document.getElementById
 
 function hideForm() {
     editingIndex = null;
-    experienceForm.reset();syncEditorsFromFields(experienceForm);
+    experienceForm.reset();setSeriesDates();syncSeriesDatesVisibility();syncEditorsFromFields(experienceForm);
     experienceForm.hidden = true;
 }
 
@@ -884,12 +920,14 @@ function editExperience(index) { pendingInspiration.experience=null;document.get
 
     editingIndex = index;
     experienceForm.reset();
+    setSeriesDates(experience.eventDates || []);
 
     for (const field of experienceFields) {
         document.getElementById(field).value = experience[field] ?? "";
     }
 
     syncEditorsFromFields(experienceForm);
+    syncSeriesDatesVisibility();
     restoreChecks(experienceForm, "strands", experience.strands);
     restoreChecks(experienceForm, "learningOutcomes", experience.learningOutcomes);
 
@@ -915,7 +953,7 @@ function makeButton(label, handler) {
     return button;
 }
 
-function detailLabel(key){return key.replace(/^project/, "").replace(/([A-Z])/g," $1").replace(/^./,m=>m.toUpperCase());}
+function detailLabel(key){if(key==="eventDates")return "Event dates";return key.replace(/^project/, "").replace(/([A-Z])/g," $1").replace(/^./,m=>m.toUpperCase());}
 function renderPortfolioCard(type,record,index){
  const project=type==="project"; const card=document.createElement("article");card.className="card portfolio-card";card.dataset.index=index;
  const cover=document.createElement("div");cover.className="portfolio-cover"+(project?" project":"");
@@ -929,7 +967,7 @@ function renderPortfolioCard(type,record,index){
  for(const lo of record.learningOutcomes||[]){const tag=document.createElement("span");tag.className="pill";tag.textContent=lo;pills.append(tag)}body.append(pills);
  const meta=document.createElement("div");meta.className="portfolio-meta";
  const hours=project?record.projectHours:record.hoursPerWeek;const count=(record.media||[]).length;
- meta.textContent=[hours?hours+" hrs/week":null,count+" attachment"+(count===1?"":"s")].filter(Boolean).join("  ·  ");body.append(meta);
+ meta.textContent=[hours?hours+" hrs/week":null,(!project&&record.eventType==="Series of Events"&&record.eventDates?.length)?record.eventDates.length+" event dates":null,count+" attachment"+(count===1?"":"s")].filter(Boolean).join("  ·  ");body.append(meta);
  const actions=document.createElement("div");actions.className="portfolio-actions";
  if(!project){
   const handle=makeButton("☰ Move",()=>{});handle.className="drag-handle";handle.title="Hold and drag to reorder";handle.setAttribute("aria-label","Hold and drag this experience to reorder");
@@ -1255,6 +1293,7 @@ experienceForm.addEventListener("submit", async function(event) {
 
     experience.strands = checkedValues(experienceForm, "strands");
     experience.learningOutcomes = checkedValues(experienceForm, "learningOutcomes");
+    experience.eventDates = document.getElementById("eventType").value==="Series of Events" ? [...new Set(seriesDateValues())].sort() : [];
 
     const saved = await withCloud(() => saveWithMedia("experience",editingIndex,experience,"experienceMedia"));
     if (saved) {clearDraft("experience",editingIndex===null?"new":cloudRows.experience[editingIndex]?.id);hideForm();}
@@ -1380,6 +1419,7 @@ function saveDraft(type){
  const id=type==="experience"?(editingIndex===null?"new":cloudRows.experience[editingIndex]?.id):(editingProjectIndex===null?"new":cloudRows.project[editingProjectIndex]?.id);
  const fields=type==="experience"?experienceFields:projectFields;
  const values=Object.fromEntries(fields.map(k=>[k,document.getElementById(k).value]));
+ if(type==="experience")values.__eventDates=seriesDateValues();
  const group=type==="experience"?["strands","learningOutcomes"]:["projectStrands","projectOutcomes"];
  values.__checks=Object.fromEntries(group.map(g=>[g,checkedValues(form,g)]));
  try{localStorage.setItem(draftKey(type,id),JSON.stringify(values))}catch(e){}
@@ -1391,6 +1431,7 @@ function restoreDraft(type,id){
  const form=type==="experience"?experienceForm:projectForm;
  for(const key of type==="experience"?experienceFields:projectFields)if(typeof draft[key]==="string")document.getElementById(key).value=draft[key];
  for(const [group,values] of Object.entries(draft.__checks||{}))restoreChecks(form,group,values);
+ if(type==="experience"){setSeriesDates(Array.isArray(draft.__eventDates)?draft.__eventDates:[]);syncSeriesDatesVisibility()}
  syncEditorsFromFields(form);
 }
 function clearDraft(type,id){try{localStorage.removeItem(draftKey(type,id))}catch(e){}}
@@ -1407,7 +1448,7 @@ const casPresentation=document.getElementById("casPresentation");
 const presentationContent=document.getElementById("presentationContent");
 let presentationType="experience",presentationIndex=0;
 const presentationGroups=[
- ["Overview",["description","projectDescription","goals","projectGoals","impact","projectImpact","date","projectDate","startDate","projectStart","finishDate","projectFinish","hoursPerWeek","projectHours","location","projectLocation","teamMembers","projectTeam"]],
+ ["Overview",["description","projectDescription","goals","projectGoals","impact","projectImpact","eventDates","date","projectDate","startDate","projectStart","finishDate","projectFinish","hoursPerWeek","projectHours","location","projectLocation","teamMembers","projectTeam"]],
  ["Investigation & planning",["investigation","projectInvestigation","preparation","projectPreparation","supervisor","projectSupervisor","riskAssessment","projectRisks","budget","projectBudget","materials","organization","projectOrganization","schoolApproval","projectApproval"]],
  ["Action & demonstration",["action","projectAction","demonstration","projectDemonstration","activityType","eventType","projectEventType","fundraising","projectFundraising"]],
  ["Reflections",["reflectionBefore","reflectionAfter","projectReflectionBefore","projectReflectionAfter","projectReflection"]],
@@ -1442,7 +1483,7 @@ async function renderPresentation(){
    used.add(key);
    const field=presentationAdd("div",section,"presentation-field");
    presentationAdd("div",field,"presentation-field-name",detailLabel(key));
-   field.append(richNode(record[key]));
+   field.append(richNode(Array.isArray(record[key])?record[key].join(" · "):record[key]));
   }
   if(group==="Evidence & inspiration"){
    const media=Array.isArray(record.media)?record.media:[];
