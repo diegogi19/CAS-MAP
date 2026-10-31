@@ -258,11 +258,18 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
 .presentation-footer>div{display:flex;gap:9px}
 .presentation-footer button:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:680px){.cas-presentation{width:100vw;height:100dvh;border-radius:0}.presentation-media{grid-template-columns:1fr}.presentation-footer{flex-wrap:wrap}.presentation-content{padding:20px}}
+
+.role-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;background:var(--hover-surface,#eef2f9);border-radius:12px;margin:20px 0}
+.role-switch button{border:0;border-radius:9px;background:transparent!important;color:var(--muted-ink,#64748b)!important;box-shadow:none!important;padding:11px 14px}
+.role-switch button.role-active{background:var(--surface,#fff)!important;color:var(--ink,#172238)!important;box-shadow:0 2px 8px #00000010!important}
+#teacherCodeForm[hidden],#authForm[hidden],#resetButton[hidden]{display:none!important}
+#teacherCodeForm input{width:100%;margin:8px 0 14px;font-family:ui-monospace,SFMono-Regular,monospace;letter-spacing:.045em}
 </style>
 </head>
 <body>
 <section id="authShell" class="auth-shell card">
   <h2>Welcome to CAS Portfolio</h2>
+  <div class="role-switch" role="group" aria-label="Choose access type"><button type="button" id="studentRole" class="role-active" aria-pressed="true">Student</button><button type="button" id="teacherRole" aria-pressed="false">Teacher</button></div>
   <p class="muted">Sign in to keep your CAS work private and available across devices.</p>
   <form id="authForm">
     <label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" required>
@@ -270,6 +277,7 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
     <div><button id="loginButton" type="submit">Log In</button><button id="signupButton" class="secondary" type="button">Create Account</button></div>
   </form>
   <button id="resetButton" class="text-button" type="button">Forgot password?</button>
+  <form id="teacherCodeForm" hidden><p class="muted">Enter the access code shared by your student. No account or email required.</p><label for="teacherCodeInput">Teacher access code</label><input id="teacherCodeInput" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="e.g. a4c9f6e2d0b1873a5f21" required minlength="20" maxlength="64"><button type="submit">View CAS Portfolio →</button></form>
   <p id="authMessage" role="status"></p>
 </section>
 <div id="appShell" hidden>
@@ -614,29 +622,6 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
     </section>
 </main>
 </div>
-<dialog id="teacherShareDialog" class="teacher-dialog">
-  <div class="teacher-dialog-inner">
-    <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
-    <p class="muted">Create a private, read-only link to your live CAS portfolio. Your teacher won't need an account.</p>
-    <div id="teacherShareStatus" role="status" class="teacher-share-status"></div>
-    <label for="teacherShareUrl">Shareable link</label>
-    <input id="teacherShareUrl" type="text" readonly placeholder="Generate a link to share" />
-    <div class="teacher-share-actions">
-      <button type="button" id="teacherShareCreate">Generate new link</button>
-      <button type="button" id="teacherShareCopy" class="secondary">Copy link</button>
-      <button type="button" id="teacherShareRevoke" class="secondary">Revoke access</button>
-    </div>
-    <p class="muted" style="font-size:.78rem">Anyone with this link can see the shared records and evidence. Regenerating replaces the previous link. Keep it private.</p>
-  </div>
-</dialog>
-<dialog id="casPresentation" class="cas-presentation" aria-label="CAS experience presentation">
- <div class="presentation-shell">
-  <header class="presentation-top"><div><span class="presentation-kicker">INTERNATIONAL BACCALAUREATE · CAS</span><h2 id="presentationTitle"></h2></div><button type="button" id="presentationClose" class="secondary" aria-label="Close presentation">✕</button></header>
-  <div id="presentationContent" class="presentation-content"></div>
-  <footer class="presentation-footer"><span id="presentationCounter"></span><div><button type="button" id="presentationPrev" class="secondary">← Previous</button><button type="button" id="presentationNext">Next →</button></div></footer>
- </div>
-</dialog>
-
 <script>
 const dashboard = document.getElementById("dashboard");
 const experiencesPage = document.getElementById("experiences");
@@ -765,7 +750,7 @@ document.getElementById("signupButton").addEventListener("click", async () => {
   const password = document.getElementById("authPassword").value;
   if (!email || password.length < 6) return setAuthMessage("Enter an email and password (at least 6 characters).",true);
   setAuthMessage("Creating account…");
-  const {data,error} = await cloud.auth.signUp({email,password,options:{emailRedirectTo:location.origin + location.pathname}});
+  const {data,error} = await cloud.auth.signUp({email,password});
   if (error) return setAuthMessage(error.message,true);
   if (data.session && data.user) await enterAccount(data.user);
   else setAuthMessage("Account created. Check your email to confirm, then log in.");
@@ -1458,6 +1443,28 @@ casPresentation.addEventListener("keydown",event=>{
  if(event.key==="ArrowRight"){event.preventDefault();document.getElementById("presentationNext").click()}
  if(event.key==="ArrowLeft"){event.preventDefault();document.getElementById("presentationPrev").click()}
 });
+// Choose between student sign-in and teacher access-code view.
+const studentRole=document.getElementById("studentRole"),teacherRole=document.getElementById("teacherRole");
+const teacherCodeForm=document.getElementById("teacherCodeForm");
+function chooseRole(role){
+ const isTeacher=role==="teacher";
+ document.getElementById("authForm").hidden=isTeacher;
+ document.getElementById("resetButton").hidden=isTeacher;
+ teacherCodeForm.hidden=!isTeacher;
+ studentRole.classList.toggle("role-active",!isTeacher);
+ teacherRole.classList.toggle("role-active",isTeacher);
+ studentRole.setAttribute("aria-pressed",String(!isTeacher));
+ teacherRole.setAttribute("aria-pressed",String(isTeacher));
+ setAuthMessage("");
+}
+studentRole.addEventListener("click",()=>chooseRole("student"));
+teacherRole.addEventListener("click",()=>chooseRole("teacher"));
+teacherCodeForm.addEventListener("submit",event=>{
+ event.preventDefault();
+ const code=document.getElementById("teacherCodeInput").value.trim().toLowerCase().replace(/\s+/g,"");
+ if(!/^(?:[a-f0-9]{20}|[a-f0-9]{64})$/.test(code))return setAuthMessage("Enter the 20-character code your student shared.",true);
+ window.location.assign(new URL("teacher.html#access="+encodeURIComponent(code),location.href).href);
+});
 // Teacher access: a single revocable, unguessable read-only link per account.
 // Only a SHA-256 hash of the token is stored in Supabase.
 const teacherDialog=document.getElementById("teacherShareDialog");
@@ -1465,7 +1472,7 @@ const teacherUrlInput=document.getElementById("teacherShareUrl");
 const teacherStatus=document.getElementById("teacherShareStatus");
 function teacherMsg(message){teacherStatus.textContent=message}
 function teacherRandomToken(){
- const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);
+ const bytes=new Uint8Array(10);crypto.getRandomValues(bytes);
  return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
 }
 async function teacherHash(token){
@@ -1495,7 +1502,7 @@ document.getElementById("teacherShareCreate").addEventListener("click",async()=>
   if(error)throw error;
   const url=teacherLink(token);
   teacherUrlInput.value=url;localStorage.setItem(teacherStorageKey(),url);
-  teacherMsg("New link active. Copy and send it privately to your teacher.");
+  teacherMsg("New access code: "+token+" — give your teacher this code, or copy the direct link. Keep it private.");
  }catch(e){teacherMsg("Could not generate link: "+e.message)}
  finally{btn.disabled=false}
 });
@@ -1512,5 +1519,27 @@ document.getElementById("teacherShareRevoke").addEventListener("click",async()=>
 
 </script>
 
+<dialog id="teacherShareDialog" class="teacher-dialog">
+  <div class="teacher-dialog-inner">
+    <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
+    <p class="muted">Create a private, read-only link to your live CAS portfolio. Your teacher won't need an account.</p>
+    <div id="teacherShareStatus" role="status" class="teacher-share-status"></div>
+    <label for="teacherShareUrl">Shareable link</label>
+    <input id="teacherShareUrl" type="text" readonly placeholder="Generate a link to share" />
+    <div class="teacher-share-actions">
+      <button type="button" id="teacherShareCreate">Generate new link</button>
+      <button type="button" id="teacherShareCopy" class="secondary">Copy link</button>
+      <button type="button" id="teacherShareRevoke" class="secondary">Revoke access</button>
+    </div>
+    <p class="muted" style="font-size:.78rem">Anyone with this link can see the shared records and evidence. Regenerating replaces the previous link. Keep it private.</p>
+  </div>
+</dialog>
+<dialog id="casPresentation" class="cas-presentation" aria-label="CAS experience presentation">
+ <div class="presentation-shell">
+  <header class="presentation-top"><div><span class="presentation-kicker">INTERNATIONAL BACCALAUREATE · CAS</span><h2 id="presentationTitle"></h2></div><button type="button" id="presentationClose" class="secondary" aria-label="Close presentation">✕</button></header>
+  <div id="presentationContent" class="presentation-content"></div>
+  <footer class="presentation-footer"><span id="presentationCounter"></span><div><button type="button" id="presentationPrev" class="secondary">← Previous</button><button type="button" id="presentationNext">Next →</button></div></footer>
+ </div>
+</dialog>
 </body>
 </html>
