@@ -228,7 +228,7 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
 .teacher-share-status{min-height:25px;color:var(--muted-ink,#64748b);font-size:.84rem;margin:15px 0 8px}
 .teacher-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin:13px 0}
 .teacher-share-actions button{font-size:.83rem;padding:10px 12px}
-#teacherShareUrl{width:100%;font-size:.78rem}
+#teacherShareUrl,#teacherShareCode{width:100%;font-size:.84rem}#teacherShareCode{font-family:ui-monospace,SFMono-Regular,monospace;font-weight:750;letter-spacing:.085em;font-size:1.15rem;text-align:center}
 
 /* Immersive full-record CAS presentation */
 .cas-presentation{width:min(1120px,calc(100vw - 32px));height:min(92vh,1000px);max-width:none;max-height:none;padding:0;border:1px solid var(--line,#e5eaf2);border-radius:20px;background:var(--surface,#fff);color:var(--ink,#172238);box-shadow:0 40px 120px #0006;overflow:hidden}
@@ -628,10 +628,13 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
     <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
     <p class="muted">Create a private, read-only link to your live CAS portfolio. Your teacher won't need an account.</p>
     <div id="teacherShareStatus" role="status" class="teacher-share-status"></div>
-    <label for="teacherShareUrl">Shareable link</label>
+    <label for="teacherShareCode">Teacher access code</label>
+    <input id="teacherShareCode" type="text" readonly placeholder="Generate a code to share" autocomplete="off" spellcheck="false" />
+    <div class="teacher-share-actions"><button type="button" id="teacherShareCopyCode" class="secondary">Copy code</button></div>
+    <label for="teacherShareUrl">Direct link (optional)</label>
     <input id="teacherShareUrl" type="text" readonly placeholder="Generate a link to share" />
     <div class="teacher-share-actions">
-      <button type="button" id="teacherShareCreate">Generate new link</button>
+      <button type="button" id="teacherShareCreate">Generate new code</button>
       <button type="button" id="teacherShareCopy" class="secondary">Copy link</button>
       <button type="button" id="teacherShareRevoke" class="secondary">Revoke access</button>
     </div>
@@ -1492,6 +1495,12 @@ teacherCodeForm.addEventListener("submit",event=>{
 // Only a SHA-256 hash of the token is stored in Supabase.
 const teacherDialog=document.getElementById("teacherShareDialog");
 const teacherUrlInput=document.getElementById("teacherShareUrl");
+const teacherCodeInput=document.getElementById("teacherShareCode");
+function teacherDisplayLink(url){
+ teacherUrlInput.value=url||"";
+ try{const code=new URLSearchParams(new URL(url).hash.slice(1)).get("access")||"";teacherCodeInput.value=/^[a-f0-9]{20}$/.test(code)?code:""}
+ catch{teacherCodeInput.value=""}
+}
 const teacherStatus=document.getElementById("teacherShareStatus");
 function teacherMsg(message){teacherStatus.textContent=message}
 function teacherRandomToken(){
@@ -1507,27 +1516,32 @@ function teacherStorageKey(){return "cas-teacher-link-"+currentUser.id}
 document.getElementById("teacherShareButton").addEventListener("click",async()=>{
  if(!currentUser)return;
  teacherDialog.showModal();
- teacherUrlInput.value=localStorage.getItem(teacherStorageKey())||"";
+ teacherDisplayLink(localStorage.getItem(teacherStorageKey())||"");
  teacherMsg("Checking sharing status…");
  const {data,error}=await cloud.from("cas_teacher_shares").select("enabled").eq("user_id",currentUser.id).maybeSingle();
- if(error)teacherMsg("Run the Teacher View SQL setup first: "+error.message);
- else if(!data?.enabled){teacherUrlInput.value="";localStorage.removeItem(teacherStorageKey());teacherMsg("No active teacher link. Generate one to enable read-only access.")}
+ if(error)teacherMsg("Database access error: "+error.message+". Run the Teacher Access SQL fix in Supabase SQL Editor.");
+ else if(!data?.enabled){teacherDisplayLink("");localStorage.removeItem(teacherStorageKey());teacherMsg("No active teacher link. Generate one to enable read-only access.")}
  else if(!teacherUrlInput.value)teacherMsg("Sharing is active, but this browser no longer has the link. Generate a new link to replace it.");
- else teacherMsg("Your teacher link is active. Updates to saved records appear when the teacher refreshes.");
+ else teacherMsg(teacherCodeInput.value?"Your teacher code is active. Share only the code above.":"An older link is active. Generate a new code to use code-only access.");
 });
 document.getElementById("teacherShareClose").addEventListener("click",()=>teacherDialog.close());
 document.getElementById("teacherShareCreate").addEventListener("click",async()=>{
- if(!currentUser||!confirm("Generate a new teacher link? Any previous teacher link will stop working."))return;
+ if(!currentUser||!confirm("Generate a new teacher code? Your previous teacher link/code will stop working."))return;
  const btn=document.getElementById("teacherShareCreate");btn.disabled=true;
  try{
   const token=teacherRandomToken(),token_hash=await teacherHash(token);
   const {error}=await cloud.from("cas_teacher_shares").upsert({user_id:currentUser.id,token_hash,enabled:true,updated_at:new Date().toISOString()},{onConflict:"user_id"});
   if(error)throw error;
   const url=teacherLink(token);
-  teacherUrlInput.value=url;localStorage.setItem(teacherStorageKey(),url);
-  teacherMsg("New access code: "+token+" — give your teacher this code, or copy the direct link. Keep it private.");
+  teacherDisplayLink(url);localStorage.setItem(teacherStorageKey(),url);
+  teacherMsg("Teacher code is active. Click Copy code and send it privately to your teacher.");
  }catch(e){teacherMsg("Could not generate link: "+e.message)}
  finally{btn.disabled=false}
+});
+document.getElementById("teacherShareCopyCode").addEventListener("click",async()=>{
+ if(!teacherCodeInput.value)return teacherMsg("Generate a new code first.");
+ try{await navigator.clipboard.writeText(teacherCodeInput.value);teacherMsg("Teacher code copied.")}
+ catch{teacherCodeInput.select();teacherMsg("Copy the selected code manually.")}
 });
 document.getElementById("teacherShareCopy").addEventListener("click",async()=>{
  if(!teacherUrlInput.value)return teacherMsg("Generate a link first.");
@@ -1537,7 +1551,7 @@ document.getElementById("teacherShareRevoke").addEventListener("click",async()=>
  if(!currentUser||!confirm("Revoke teacher access now? The current link will stop working."))return;
  const {error}=await cloud.from("cas_teacher_shares").update({enabled:false,updated_at:new Date().toISOString()}).eq("user_id",currentUser.id);
  if(error)return teacherMsg("Could not revoke: "+error.message);
- localStorage.removeItem(teacherStorageKey());teacherUrlInput.value="";teacherMsg("Teacher access revoked.");
+ localStorage.removeItem(teacherStorageKey());teacherDisplayLink("");teacherMsg("Teacher access revoked.");
 });
 
 </script>
