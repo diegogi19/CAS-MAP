@@ -264,6 +264,15 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
 .role-switch button.role-active{background:var(--surface,#fff)!important;color:var(--ink,#172238)!important;box-shadow:0 2px 8px #00000010!important}
 #teacherCodeForm[hidden],#authForm[hidden],#resetButton[hidden]{display:none!important}
 #teacherCodeForm input{width:100%;margin:8px 0 14px;font-family:ui-monospace,SFMono-Regular,monospace;letter-spacing:.045em}
+
+.student-profile-dialog{border:1px solid var(--line,#e4e9f2);border-radius:18px;padding:0;background:var(--surface,#fff);color:var(--ink,#172238);width:min(470px,calc(100vw - 28px));box-shadow:0 28px 100px #0005}
+.student-profile-dialog::backdrop{background:#10203f99;backdrop-filter:blur(4px)}
+.student-profile-inner{padding:26px;display:flex;flex-direction:column;gap:12px}
+.student-profile-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.student-profile-header h3{margin:0;font-size:1.45rem}
+.student-profile-header button{padding:6px 11px}
+#studentProfileMessage{min-height:1.3em;font-size:.84rem}
+#studentProfileButton{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -305,7 +314,7 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
           </div>
         </div>
       </div><button type="button" id="teacherShareButton" class="secondary" title="Manage read-only teacher access">Teacher View</button>
-      <span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
+      <button type="button" id="studentProfileButton" class="secondary" title="Set your student name">My name</button><span id="accountEmail" class="muted"></span><span id="syncStatus" class="sync-status" role="status"></span><button class="secondary" id="logoutButton" type="button">Log out</button><button class="secondary" onclick="showPage('dashboard')">Dashboard</button></div>
 </header>
 
 <main>
@@ -623,6 +632,16 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
 </main>
 </div>
 
+<dialog id="studentProfileDialog" class="student-profile-dialog">
+ <form id="studentProfileForm" class="student-profile-inner">
+  <div class="student-profile-header"><h3>Student identity</h3><button type="button" id="studentProfileClose" class="secondary" aria-label="Close">×</button></div>
+  <p class="muted">This name appears at the top of your teacher's read-only CAS Portfolio.</p>
+  <label for="studentFullName">Full student name</label>
+  <input id="studentFullName" type="text" maxlength="100" autocomplete="name" placeholder="Your full name" required>
+  <p id="studentProfileMessage" role="status" class="muted"></p>
+  <button type="submit" id="studentProfileSave">Save student name</button>
+ </form>
+</dialog>
 <dialog id="teacherShareDialog" class="teacher-dialog">
   <div class="teacher-dialog-inner">
     <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
@@ -756,6 +775,7 @@ async function importLocalData() {
 async function enterAccount(user) {
   currentUser = user;
   document.getElementById("accountEmail").textContent = user.email || "Signed in";
+  updateStudentNameButton(user);
   authShell.hidden = true; appShell.hidden = false;
   showPage("dashboard");
   if (await loadCloud()) await importLocalData();
@@ -1490,6 +1510,43 @@ teacherCodeForm.addEventListener("submit",event=>{
  const code=document.getElementById("teacherCodeInput").value.trim().toLowerCase().replace(/\s+/g,"");
  if(!/^(?:[a-f0-9]{20}|[a-f0-9]{64})$/.test(code))return setAuthMessage("Enter the 20-character code your student shared.",true);
  window.location.assign(new URL("teacher.html#access="+encodeURIComponent(code),location.href).href);
+});
+
+// Student identity is stored in Supabase Auth user metadata, not localStorage.
+// Teacher View retrieves it server-side for the matching share code.
+const studentProfileDialog=document.getElementById("studentProfileDialog");
+const studentFullName=document.getElementById("studentFullName");
+const studentProfileMessage=document.getElementById("studentProfileMessage");
+function updateStudentNameButton(user){
+ const name=String(user?.user_metadata?.cas_student_name||"").trim();
+ const button=document.getElementById("studentProfileButton");
+ button.textContent=name?name:"Set student name";
+ button.title="Edit student name";
+}
+document.getElementById("studentProfileButton").addEventListener("click",()=>{
+ if(!currentUser)return;
+ studentFullName.value=String(currentUser.user_metadata?.cas_student_name||"");
+ studentProfileMessage.textContent="";
+ studentProfileDialog.showModal();
+ studentFullName.focus();
+});
+document.getElementById("studentProfileClose").addEventListener("click",()=>studentProfileDialog.close());
+document.getElementById("studentProfileForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ if(!currentUser)return;
+ const name=studentFullName.value.trim().replace(/\s+/g," ");
+ if(name.length<2||name.length>100){studentProfileMessage.textContent="Enter your full name (2–100 characters).";return}
+ const save=document.getElementById("studentProfileSave");
+ save.disabled=true;studentProfileMessage.textContent="Saving name…";
+ try{
+  const {data,error}=await cloud.auth.updateUser({data:{cas_student_name:name}});
+  if(error)throw error;
+  currentUser=data.user||currentUser;
+  updateStudentNameButton(currentUser);
+  studentProfileMessage.textContent="Saved! Your teacher will see this name after refreshing their view.";
+  setTimeout(()=>{if(studentProfileDialog.open)studentProfileDialog.close()},900);
+ }catch(error){studentProfileMessage.textContent="Could not save name: "+error.message}
+ finally{save.disabled=false}
 });
 // Teacher access: a single revocable, unguessable read-only link per account.
 // Only a SHA-256 hash of the token is stored in Supabase.
