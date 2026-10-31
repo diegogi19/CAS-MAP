@@ -56,13 +56,14 @@ button:hover{filter:brightness(.96)}
 .empty{padding:45px 20px;text-align:center;color:#7b889b;border:1px dashed #ccd7e7;border-radius:15px}
 footer{color:#8290a5;font-size:.77rem;margin-top:45px}
 @media(max-width:780px){main{margin-top:30px}.record-grid{grid-template-columns:1fr}.outcomes{grid-template-columns:repeat(4,1fr)}.cards{gap:8px}.metric{padding:15px}.metric .value{font-size:1.8rem}.strand-list{grid-template-columns:1fr}.header-inner{padding:17px 20px}}
-</style>
+.teacher-student-name{display:inline-flex;padding:10px 16px;border-radius:999px;background:#e8eefb;color:#234a8c;font-weight:750;font-size:.95rem;margin:0 0 12px}.teacher-student-name[hidden]{display:none}</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand"><span class="ib">IB</span><span>CAS Portfolio <small style="display:block;font-size:.7rem;font-weight:500;color:#718099;letter-spacing:0">International Baccalaureate · Teacher View</small></span></div><span class="readonly">◉ Read-only access</span></div></header>
 <main>
 <div class="eyebrow">Teacher dashboard</div>
-<h1>CAS learning journey</h1>
+<h1 id="teacherPortfolioTitle">CAS learning journey</h1>
+<p id="teacherStudentName" class="teacher-student-name" hidden></p>
 <p class="subtitle">A live, read-only view of the student's experiences, projects, reflections and supporting evidence. Changes appear after refreshing the page.</p>
 <div class="actions"><button id="refresh">↻ Refresh progress</button><button id="print" class="secondary">Print summary</button><span id="updated" style="font-size:.78rem;color:#78869a"></span></div>
 <div id="status" class="status">Loading shared portfolio…</div>
@@ -173,6 +174,10 @@ async function load(){
   let data;
   try{data=JSON.parse(raw)}catch{throw new Error("Server returned HTTP "+response.status+" (check that teacher-view is deployed and Verify JWT is OFF)")}
   if(!response.ok)throw new Error((data.error||"Could not load the shared portfolio")+" (HTTP "+response.status+")");
+  const studentName=typeof data.studentName==="string"?data.studentName.trim():"";
+  $("teacherStudentName").textContent=studentName?"Student: "+studentName:"Student name not set yet";
+  $("teacherStudentName").hidden=false;
+  document.title=studentName?studentName+" | Teacher View | CAS Portfolio":"Teacher View | CAS Portfolio";
   records=Array.isArray(data.records)?data.records:[];
   records.sort((a,b)=>a.type===b.type?(Number(a.content.sortOrder)||new Date(a.created_at).getTime())-(Number(b.content.sortOrder)||new Date(b.created_at).getTime()):a.type==="experience"?-1:1);
   render();portfolio.hidden=false;status.hidden=true;
