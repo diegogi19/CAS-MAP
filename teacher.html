@@ -169,13 +169,15 @@ async function load(){
  portfolio.hidden=true;
  try{
   const response=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token}),cache:"no-store"});
-  const data=await response.json();
-  if(!response.ok)throw new Error(data.error||"Could not load the shared portfolio");
+  const raw=await response.text();
+  let data;
+  try{data=JSON.parse(raw)}catch{throw new Error("Server returned HTTP "+response.status+" (check that teacher-view is deployed and Verify JWT is OFF)")}
+  if(!response.ok)throw new Error((data.error||"Could not load the shared portfolio")+" (HTTP "+response.status+")");
   records=Array.isArray(data.records)?data.records:[];
   records.sort((a,b)=>a.type===b.type?(Number(a.content.sortOrder)||new Date(a.created_at).getTime())-(Number(b.content.sortOrder)||new Date(b.created_at).getTime()):a.type==="experience"?-1:1);
   render();portfolio.hidden=false;status.hidden=true;
   $("updated").textContent="Updated "+new Date().toLocaleString();
- }catch(error){status.textContent=error.message+" — Ask the student for a new sharing link if access has been revoked."}
+ }catch(error){status.textContent=error.message+". If this continues, check Supabase → Edge Functions → teacher-view → Logs."}
 }
 for(const [id,value] of [["showAll","all"],["showExperiences","experience"],["showProjects","project"]]){
  $(id).addEventListener("click",()=>{
