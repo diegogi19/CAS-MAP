@@ -622,6 +622,29 @@ body .ivi-mark{background:var(--accent);color:var(--page)}
     </section>
 </main>
 </div>
+
+<dialog id="teacherShareDialog" class="teacher-dialog">
+  <div class="teacher-dialog-inner">
+    <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
+    <p class="muted">Create a private, read-only link to your live CAS portfolio. Your teacher won't need an account.</p>
+    <div id="teacherShareStatus" role="status" class="teacher-share-status"></div>
+    <label for="teacherShareUrl">Shareable link</label>
+    <input id="teacherShareUrl" type="text" readonly placeholder="Generate a link to share" />
+    <div class="teacher-share-actions">
+      <button type="button" id="teacherShareCreate">Generate new link</button>
+      <button type="button" id="teacherShareCopy" class="secondary">Copy link</button>
+      <button type="button" id="teacherShareRevoke" class="secondary">Revoke access</button>
+    </div>
+    <p class="muted" style="font-size:.78rem">Anyone with this link can see the shared records and evidence. Regenerating replaces the previous link. Keep it private.</p>
+  </div>
+</dialog>
+<dialog id="casPresentation" class="cas-presentation" aria-label="CAS experience presentation">
+ <div class="presentation-shell">
+  <header class="presentation-top"><div><span class="presentation-kicker">INTERNATIONAL BACCALAUREATE · CAS</span><h2 id="presentationTitle"></h2></div><button type="button" id="presentationClose" class="secondary" aria-label="Close presentation">✕</button></header>
+  <div id="presentationContent" class="presentation-content"></div>
+  <footer class="presentation-footer"><span id="presentationCounter"></span><div><button type="button" id="presentationPrev" class="secondary">← Previous</button><button type="button" id="presentationNext">Next →</button></div></footer>
+ </div>
+</dialog>
 <script>
 const dashboard = document.getElementById("dashboard");
 const experiencesPage = document.getElementById("experiences");
@@ -1519,27 +1542,5 @@ document.getElementById("teacherShareRevoke").addEventListener("click",async()=>
 
 </script>
 
-<dialog id="teacherShareDialog" class="teacher-dialog">
-  <div class="teacher-dialog-inner">
-    <div class="teacher-dialog-top"><h3>Teacher access</h3><button type="button" id="teacherShareClose" class="secondary" aria-label="Close">×</button></div>
-    <p class="muted">Create a private, read-only link to your live CAS portfolio. Your teacher won't need an account.</p>
-    <div id="teacherShareStatus" role="status" class="teacher-share-status"></div>
-    <label for="teacherShareUrl">Shareable link</label>
-    <input id="teacherShareUrl" type="text" readonly placeholder="Generate a link to share" />
-    <div class="teacher-share-actions">
-      <button type="button" id="teacherShareCreate">Generate new link</button>
-      <button type="button" id="teacherShareCopy" class="secondary">Copy link</button>
-      <button type="button" id="teacherShareRevoke" class="secondary">Revoke access</button>
-    </div>
-    <p class="muted" style="font-size:.78rem">Anyone with this link can see the shared records and evidence. Regenerating replaces the previous link. Keep it private.</p>
-  </div>
-</dialog>
-<dialog id="casPresentation" class="cas-presentation" aria-label="CAS experience presentation">
- <div class="presentation-shell">
-  <header class="presentation-top"><div><span class="presentation-kicker">INTERNATIONAL BACCALAUREATE · CAS</span><h2 id="presentationTitle"></h2></div><button type="button" id="presentationClose" class="secondary" aria-label="Close presentation">✕</button></header>
-  <div id="presentationContent" class="presentation-content"></div>
-  <footer class="presentation-footer"><span id="presentationCounter"></span><div><button type="button" id="presentationPrev" class="secondary">← Previous</button><button type="button" id="presentationNext">Next →</button></div></footer>
- </div>
-</dialog>
 </body>
 </html>
